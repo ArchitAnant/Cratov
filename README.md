@@ -1,2 +1,1 @@
-#vigilant-waddle
 # vigilant-waddle
