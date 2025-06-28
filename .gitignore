@@ -3,3 +3,4 @@
 *.png
 temp.py
 .env
+output.pdf
