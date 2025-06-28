@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, MapPin } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ReportIssue = () => {
@@ -27,17 +27,22 @@ const ReportIssue = () => {
       alert("Please upload all 4 images.");
       return;
     }
-    navigate("/verify"); // Next page route
+    navigate("/verify");
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 px-8 py-10 min-h-screen bg-white">
+    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-24 pb-10 min-h-screen bg-white">
       {/* Left Section */}
-      <div className="flex-1">
-        <h2 className="text-3xl font-semibold mb-6">Report A Pothole</h2>
+      <div className="flex-1 pl-[86px]">
+        <h2
+          className="text-[30px] font-medium mb-8"
+          style={{ lineHeight: "100%", color: "#000000" }}
+        >
+          Report A Pothole
+        </h2>
 
         {/* Address Section */}
-        <div className="mb-8">
+        <div className="mb-10">
           {showAddressInput ? (
             <input
               type="text"
@@ -49,31 +54,42 @@ const ReportIssue = () => {
           ) : (
             <button
               onClick={() => setShowAddressInput(true)}
-              className="flex items-center gap-2 text-gray-700 hover:text-black"
+              className="flex items-center gap-2 text-[18px] text-black opacity-80"
             >
               <Plus size={18} />
-              <span className="text-base">Add Address</span>
+              Add Address
             </button>
           )}
         </div>
 
         {/* Image Upload */}
-        <div>
-          <h4 className="text-lg mb-4">Add Images</h4>
+        <div className="mb-8">
+          <h4
+            className="text-[18px] font-normal mb-4"
+            style={{
+              lineHeight: "100%",
+              color: "#000000",
+            }}
+          >
+            Add Images
+          </h4>
+
           <div className="flex gap-4 flex-wrap">
             {images.map((img, index) => (
               <label
                 key={index}
-                className="w-20 h-20 flex items-center justify-center rounded-lg bg-gray-200 cursor-pointer hover:bg-gray-300"
+                className="w-[114px] h-[114px] flex items-center justify-center 
+                  rounded-[21px] bg-gray-200 cursor-pointer border border-black"
+                style={{ opacity: img ? 1 : 0.1 }}
               >
                 {img ? (
                   <img
                     src={img}
                     alt="preview"
-                    className="w-full h-full object-cover rounded-lg"
+                    className="w-full h-full object-cover rounded-[21px]"
                   />
                 ) : (
-                  <Plus size={24} className="text-gray-600" />
+                  <Plus size={32} color="#000000" className="opacity-80" />
                 )}
                 <input
                   type="file"
@@ -88,7 +104,7 @@ const ReportIssue = () => {
       </div>
 
       {/* Right Section */}
-      <div className="w-full md:w-[30%]">
+      <div className="w-full md:w-[30%] pr-[86px]">
         <div className="mb-8">
           <h4 className="font-semibold text-lg mb-2">Guidelines :</h4>
           <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
@@ -109,10 +125,12 @@ const ReportIssue = () => {
         {/* Verify Button */}
         <button
           onClick={handleVerify}
-          className="flex items-center gap-2 bg-black text-white px-6 py-2 rounded-full hover:bg-gray-800"
+          className="flex items-center justify-center gap-2 
+            w-[137px] h-[40px] rounded-[49px] 
+            bg-black text-white text-base 
+            hover:bg-gray-800"
         >
-          Verify
-          <span>→</span>
+          Verify <span>→</span>
         </button>
       </div>
     </div>

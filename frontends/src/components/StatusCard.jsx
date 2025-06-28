@@ -9,8 +9,14 @@ const StatusCard = ({
   phoneCount,
   price,
 }) => {
+  const isApproved = status === "Approved";
+
   return (
-    <div className="bg-white rounded-3xl shadow-md p-4 w-full max-w-sm flex flex-col gap-4">
+    <div
+      className="bg-[#D9D9D9]/50 rounded-3xl shadow-md 
+      w-[298px] h-[266px] flex flex-col justify-between 
+      p-4 font-poppins ml-[86px]"
+    >
       {/* Header */}
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-2">
@@ -28,35 +34,48 @@ const StatusCard = ({
       </div>
 
       {/* Address */}
-      <p className="text-sm text-gray-700">{address}</p>
+      <p className="text-[13px] text-black">{address}</p>
 
       {/* Status */}
       <div className="flex flex-col gap-1">
         <p
           className={`text-xs font-medium ${
-            status === "Approved" ? "text-green-600" : "text-red-500"
+            isApproved ? "text-green-600" : "text-red-500"
           }`}
         >
-          {status === "Approved" ? "Approved" : "Awaiting Approval"}
+          {status}
         </p>
-
-        <p className="text-xs font-medium text-orange-600">{bidStatus}</p>
+        {bidStatus && (
+          <p className="text-xs font-medium text-orange-600">{bidStatus}</p>
+        )}
       </div>
 
-      {/* Bottom */}
+      {/* Bottom Section */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {status === "Awaiting Approval" ? (
-            <>
-              <Phone size={16} />
-              <p className="text-sm">{phoneCount}</p>
-            </>
-          ) : (
+        {/* Left Section */}
+        {isApproved ? (
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-[#D9D9D9]/50 rounded-full flex items-center justify-center">
+              <div className="w-2 h-2 bg-black rounded-full"></div>
+            </div>
             <p className="text-sm font-semibold">₹{price} Cr</p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div
+            className="flex items-center gap-2 
+            bg-white/60 px-3 py-1 rounded-[12px] shadow-sm"
+          >
+            <Phone size={16} className="text-black" />
+            <p className="text-sm text-black">{phoneCount}</p>
+          </div>
+        )}
 
-        <button className="flex items-center gap-2 bg-black text-white text-sm px-4 py-1.5 rounded-full hover:bg-gray-800">
+        {/* Expand Button */}
+        <button
+          className="flex items-center justify-center gap-2 
+          w-[137px] h-[40px] rounded-[49px] 
+          bg-black text-white text-sm hover:bg-gray-800"
+        >
           Expand <ArrowRight size={14} />
         </button>
       </div>

@@ -9,7 +9,7 @@ import BiddingDetail from "./pages/BiddingDetail";
 import ProjectProgress from "./pages/ProjectProgress";
 import FundedDetail from "./pages/Funded"; 
 import ConstructionRating from "./pages/ConstructionRating"; 
-
+import Dashboard from "./pages/Dashboard";
 function App() {
   return (
     <BrowserRouter>
@@ -22,6 +22,7 @@ function App() {
         <Route path="/progress/:id" element={<ProjectProgress />} />
         <Route path="/funded" element={<FundedDetail />} />
         <Route path="/rate-construction" element={<ConstructionRating />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );

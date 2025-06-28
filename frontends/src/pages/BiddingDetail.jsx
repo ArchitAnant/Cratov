@@ -1,98 +1,102 @@
-import { Bookmark, Star, Phone } from "lucide-react";
+import { Bookmark, Star } from "lucide-react";
 
 const BiddingDetail = () => {
   return (
-    <div className="min-h-screen bg-white py-10 px-4 text-gray-800">
-      <div className="max-w-[95rem] mx-auto grid grid-cols-1 md:grid-cols-3 gap-x-6">
-
-        {/* ========= Left: Pothole Report ========= */}
-        <div className="md:col-span-2 space-y-6">
-          {/* 🔹 Title & Address */}
+    <div className="min-h-screen bg-white pt-24 pb-10 px-[86px] font-poppins">
+      <div className="flex flex-col md:flex-row gap-10">
+        
+        {/* ========= Left Section ========= */}
+        <div className="flex-1">
+          {/*  Title & Address */}
           <div>
-            <h1 className="text-2xl font-semibold">Pothole Report</h1>
-            <p className="text-gray-600 mt-1">
+            <h1 className="text-[24px] font-semibold mb-1">
+              Pothole Report
+            </h1>
+            <p className="text-[14px] text-gray-600">
               48, Thakurpukur, Bibirhat - Bakrahat – Raipur Rd
             </p>
           </div>
 
-          {/* 🔹 Current Status */}
-          <div>
-            <h3 className="text-sm font-medium">Current Status :</h3>
-            <ul className="list-disc ml-5 mt-2 text-sm space-y-1">
+          {/*  Current Status */}
+          <div className="mt-6 mb-4">
+            <h3 className="text-[14px] font-medium mb-2">Current Status :</h3>
+            <ul className="list-disc ml-5 text-[14px] space-y-1">
               <li className="text-green-600">Approved</li>
               <li className="text-red-500">On Bid</li>
             </ul>
           </div>
 
-          {/* 🔹 Images */}
-          <div className="flex gap-4">
+          {/*  Images */}
+          <div className="flex gap-4 mb-6">
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
-                className="w-20 h-20 bg-gray-200 rounded-lg"
+                className="w-[80px] h-[80px] bg-gray-200 rounded-[20px]"
               />
             ))}
           </div>
 
-          {/* 🔹 Bidding Info */}
+          {/*  Current Bidding */}
           <div>
-            <h3 className="text-sm font-medium mb-2">Current Bidding :</h3>
-            <div className="flex items-center space-x-3">
-              <span className="w-3 h-3 bg-black rounded-full inline-block" />
-              <div>
-                <p className="font-semibold text-lg">₹1.50 Cr</p>
-                <p className="text-gray-600 text-sm flex items-center gap-1">
-                  Spector Constructions
-                  <Star size={14} className="text-yellow-500" />
-                  4.2/5.0
-                </p>
+            <h3 className="text-[14px] font-medium mb-2 text-[#D9D9D9]">
+              Current Bidding :
+            </h3>
+
+            <div className="flex flex-col gap-1 ml-2">
+              {/*  ₹1.50 Cr with Dot */}
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-[#D9D9D9] flex items-center justify-center">
+                  <div className="w-2.5 h-2.5 bg-black rounded-full"></div>
+                </div>
+                <p className="font-semibold text-[18px]">₹1.50 Cr</p>
+              </div>
+
+              {/*  Spector and Rating */}
+              <p className="text-[14px] text-gray-600">Spector Constructions</p>
+              <div className="flex items-center gap-1">
+                <Star size={14} className="text-[#D9D9D9]" />
+                <span className="text-[14px] text-[#9A9A9A]">4.2/5.0</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ========= Right: Sidebar ========= */}
-        <div className="space-y-6 text-sm">
-          <div className="flex justify-between items-center">
-            <h4 className="text-base font-semibold">About the post :</h4>
-            <Bookmark size={18} />
+        {/* ========= Right Sidebar ========= */}
+        <div className="w-full md:w-[30%] flex flex-col gap-6">
+          {/*  Bookmark + About */}
+          <div className="flex items-center gap-2">
+            <Bookmark className="text-black" />
+            <h4 className="text-[18px] font-semibold">About the post :</h4>
           </div>
 
+          {/*  Submitted By */}
           <div>
-            <p className="text-gray-500">Submitted By :</p>
-            <div className="flex items-center mt-1 space-x-2">
+            <p className="text-[14px] text-gray-500 mb-1">Submitted By :</p>
+            <div className="flex items-center gap-2">
               <img
                 src="https://i.pravatar.cc/40"
                 alt="avatar"
-                className="w-8 h-8 rounded-full"
+                className="w-[30px] h-[30px] rounded-full"
               />
-              <span className="font-medium">@arl_archit_</span>
+              <span className="font-medium">@ari_archit_</span>
             </div>
           </div>
 
+          {/*  Submitted On */}
           <div>
-            <p className="text-gray-500">Submitted On :</p>
-            <p className="font-medium mt-1">27th June 2025</p>
+            <p className="text-[14px] text-gray-500 mb-1">Submitted On :</p>
+            <p className="text-[14px] font-medium">27th June 2025</p>
           </div>
 
+          {/*  Pre-Repair Report */}
           <div>
-            <p className="text-gray-500">Pre-Repair Report :</p>
+            <p className="text-[14px] text-gray-500 mb-1">Pre-Repair Report :</p>
             <button
               onClick={() => alert("Download started")}
-              className="text-blue-600 underline hover:text-blue-800 mt-1"
+              className="text-blue-600 underline hover:text-blue-800 text-[14px]"
             >
               Download Pre-Repair Report
             </button>
-          </div>
-
-          {/* 🔹 Upvote Button */}
-          <div className="flex items-center gap-4 pt-4">
-            <button className="flex items-center gap-2 border px-4 py-2 rounded-full hover:bg-gray-100">
-              <Phone size={14} /> Upvote
-            </button>
-            <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200">
-              56
-            </div>
           </div>
         </div>
       </div>

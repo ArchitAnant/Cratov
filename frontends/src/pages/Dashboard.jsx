@@ -12,7 +12,6 @@ const Dashboard = () => {
           bidStatus=""
           phoneCount="56"
         />
-
         <StatusCard
           username="ar1_archit_"
           time="2 days ago"
