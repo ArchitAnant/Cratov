@@ -73,13 +73,13 @@ const StatusProgress = () => {
   }, [complete]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-8">
+    <div className="min-h-screen flex items-center justify-center bg-white px-8 pt-10">
       <div className="w-full max-w-2xl bg-white p-6 rounded-lg flex flex-col gap-8">
 
         {/* Upload Progress */}
         <div>
           <p className="text-sm font-medium text-gray-700 mb-2">Uploading</p>
-          <div className="w-full bg-gray-200 rounded-full h-4">
+          <div className="w-full bg-gray-200 rounded-full h-4 ">
             <div
               className="bg-black h-4 rounded-full transition-all duration-500"
               style={{ width: `${upload}%` }}

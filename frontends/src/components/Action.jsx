@@ -1,13 +1,14 @@
 import { ArrowRight } from "lucide-react";
 
-const ActionButton = ({onClick, action}) => {
+const ActionButton = ({onClick, action,ifDisable}) => {
     return (
         <button
+          disabled = {ifDisable}
           onClick={onClick}
-          className="flex items-center justify-center gap-2 
+          className={`flex items-center justify-center gap-2 
             w-[137px] h-[40px] rounded-[49px] 
             bg-black text-white text-[13px]
-            hover:bg-gray-800"
+            hover:bg-gray-800 ${ifDisable ? "opacity-50 cursor-not-allowed" : "opacity-100 cursor-pointer"}`}
         >
           {action} 
          <ArrowRight size={16} strokeWidth={2.5} />
@@ -15,7 +16,7 @@ const ActionButton = ({onClick, action}) => {
     )
 }
 
-const GuideLineBar = ({onActionButtonClick,actionButtonText}) => {
+const GuideLineBar = ({onActionButtonClick,actionButtonText,buttonDisable}) => {
     return (
         <div className="w-full md:w-[30%] pr-[86px] me-5">
         <div className="mb-8">
@@ -35,7 +36,7 @@ const GuideLineBar = ({onActionButtonClick,actionButtonText}) => {
           </p>
         </div>
         <div className="pt-20">
-        <ActionButton onClick={onActionButtonClick} action={actionButtonText} />
+        <ActionButton onClick={onActionButtonClick} action={actionButtonText} ifDisable={buttonDisable} />
         </div>
       </div>
     )
