@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import GuideLineBar from "../components/Action";
 
 const ReportIssue = () => {
   const [images, setImages] = useState([null, null, null, null]);
@@ -31,23 +32,23 @@ const ReportIssue = () => {
   };
 
   return (
-    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-24 pb-10 min-h-screen bg-white">
+    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-24 mb-10 min-h-screen bg-white">
       {/* Left Section */}
       <div className="flex-1 pl-[86px]">
         <h2
-          className="text-[30px] font-medium mb-8"
+          className="text-[30px] font-medium mb-[60px]"
           style={{ lineHeight: "100%", color: "#000000" }}
         >
           Report A Pothole
         </h2>
 
         {/* Address Section */}
-        <div className="mb-10">
+        <div className="mb-20">
           {showAddressInput ? (
             <input
               type="text"
               placeholder="Enter location or address"
-              className="border border-gray-300 rounded px-4 py-2 w-full focus:outline-none focus:ring focus:ring-gray-400"
+              className="border border-gray-300 rounded-full px-4 py-2 w-full focus:outline-none focus:ring focus:ring-gray-400"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
@@ -62,10 +63,10 @@ const ReportIssue = () => {
           )}
         </div>
 
-        {/* Image Upload */}
+
         <div className="mb-8">
           <h4
-            className="text-[18px] font-normal mb-4"
+            className="text-[18px]  mb-4 mt-10"
             style={{
               lineHeight: "100%",
               color: "#000000",
@@ -73,14 +74,13 @@ const ReportIssue = () => {
           >
             Add Images
           </h4>
-
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex gap-4 flex-wrap mt-8">
             {images.map((img, index) => (
               <label
                 key={index}
-                className="w-[114px] h-[114px] flex items-center justify-center 
-                  rounded-[21px] bg-gray-200 cursor-pointer border border-black"
-                style={{ opacity: img ? 1 : 0.1 }}
+                className={`w-[114px] h-[114px] flex items-center justify-center 
+                  rounded-[21px] bg-black cursor-pointer ${!img? "bg-opacity-10 ": "bg-opacity-100  border border-black"}`}
+                // style={{ opacity: img ? 1 : 0.1 }}
               >
                 {img ? (
                   <img
@@ -89,7 +89,9 @@ const ReportIssue = () => {
                     className="w-full h-full object-cover rounded-[21px]"
                   />
                 ) : (
-                  <Plus size={32} color="#000000" className="opacity-80" />
+                  <div className="opacity-100 text-black">
+                    <Plus size={32} />
+                  </div>
                 )}
                 <input
                   type="file"
@@ -97,43 +99,17 @@ const ReportIssue = () => {
                   className="hidden"
                   onChange={(e) => handleImageUpload(index, e)}
                 />
+                
               </label>
             ))}
           </div>
         </div>
       </div>
-
-      {/* Right Section */}
-      <div className="w-full md:w-[30%] pr-[86px]">
-        <div className="mb-8">
-          <h4 className="font-semibold text-lg mb-2">Guidelines :</h4>
-          <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-            <li>Add the location properly</li>
-            <li>Make sure the images are clear and show the entire potholes</li>
-            <li>You need to upload all 4 images.</li>
-          </ul>
-        </div>
-
-        <div className="mb-10">
-          <h4 className="font-semibold text-lg mb-2">Cautions :</h4>
-          <p className="text-sm text-gray-700">
-            Don’t upload unwanted images or misleading information. Uploading
-            such images would lead to account termination.
-          </p>
-        </div>
-
-        {/* Verify Button */}
-        <button
-          onClick={handleVerify}
-          className="flex items-center justify-center gap-2 
-            w-[137px] h-[40px] rounded-[49px] 
-            bg-black text-white text-base 
-            hover:bg-gray-800"
-        >
-          Verify <span>→</span>
-        </button>
+      <GuideLineBar
+        onActionButtonClick={handleVerify}
+        actionButtonText="Verify"
+      />
       </div>
-    </div>
   );
 };
 
