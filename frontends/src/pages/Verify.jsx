@@ -33,7 +33,9 @@ const Verify = () => {
       selectedFiles.forEach((file) => formData.append("images", file));
       formData.append("userId", "testuser"); // Replace with actual userId
       // formData.append("tableName", "posts"); // Optional
-      const response = await axios.post("http://localhost:5001/api/verify-pothole", formData, {
+      // Replace with Azure backend endpoint
+      const azureUrl = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/verify-pothole?code=AZURE_FUNCTION_KEY`;
+      const response = await axios.post(azureUrl, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent) => {
           const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
