@@ -36,7 +36,7 @@ function getMimeType(filePath) {
     return map[ext] || "application/octet-stream";
 }
 
-// Step 1: Upload Images to Azure Blob
+
 async function uploadToAzureBlob(filePaths, userId) {
     const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECTION_STRING);
     const containerClient = blobServiceClient.getContainerClient("images");
@@ -60,7 +60,7 @@ async function uploadToAzureBlob(filePaths, userId) {
     return uploadedNames;
 }
 
-// Step 2: Upload Post Info to Azure Table
+
 async function uploadPostToTable(imageBlobNames, userId, tableName) {
     if (imageBlobNames.length !== 4) {
         throw new Error("Exactly 4 image blob names are required");
@@ -89,7 +89,7 @@ async function uploadPostToTable(imageBlobNames, userId, tableName) {
     return postId;
 }
 
-// Step 3: Azure Function Prediction API Call
+
 async function requestPotholePrediction(postId) {
     const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/predictPothole?postid=${postId}&code=${AZURE_FUNCTION_KEY}`;
 
@@ -107,7 +107,7 @@ async function requestPotholePrediction(postId) {
     }
 }
 
-// Step 4: Delete Blobs from Azure
+
 async function deleteBlobFromAzure(blobName, containerName, connectionString) {
     const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
     const containerClient = blobServiceClient.getContainerClient(containerName);
@@ -121,7 +121,7 @@ async function deleteBlobFromAzure(blobName, containerName, connectionString) {
     }
 }
 
-// Step 5: Delete Post from Table
+
 async function deletePostFromTable(postId, tableName) {
     const tableClient = TableClient.fromConnectionString(CONNECTION_STRING, tableName);
 
@@ -142,7 +142,6 @@ async function deletePostFromTable(postId, tableName) {
     }
 }
 
-// Step 6: Upload Handler (UI Step 1)
 async function handleUpload(filePaths, userId, tableName) {
     try {
         const uploadedNames = await uploadToAzureBlob(filePaths, userId);
@@ -161,7 +160,6 @@ async function handleUpload(filePaths, userId, tableName) {
     }
 }
 
-// Step 7: Prediction Handler (UI Step 2)
 async function handlePrediction(postId) {
     try {
         const prediction = await requestPotholePrediction(postId);
@@ -173,7 +171,7 @@ async function handlePrediction(postId) {
     }
 }
 
-// Step 8: Cleanup Handler (For Rejected cases or error rollback)
+
 async function handleCleanup(postId, uploadedNames, tableName) {
     try {
         for (const blobName of uploadedNames) {
@@ -186,7 +184,6 @@ async function handleCleanup(postId, uploadedNames, tableName) {
     }
 }
 
-// Step 9: Full Upload + Prediction + Status Flow (Optional - One-Shot Mode)
 async function verifyAndProcessPothole(filePaths, userId, tableName) {
     const uploadedNames = await uploadToAzureBlob(filePaths, userId);
 
@@ -223,7 +220,7 @@ async function verifyAndProcessPothole(filePaths, userId, tableName) {
     return status;
 }
 
-// Export Clean Modular Functions
+
 module.exports = {
     handleUpload,
     handlePrediction,
