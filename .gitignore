@@ -3,4 +3,13 @@
 *.png
 temp.py
 .env
+.env.*
 output.pdf
+# Ignore crash dumps
+bash.exe.stackdump
+# Ignore uploads and binaries
+back_utils/uploads/
+# Ignore node_modules everywhere
+node_modules/
+# Ignore lock files
+package-lock.json

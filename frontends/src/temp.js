@@ -4,7 +4,8 @@ const fs = require("fs");
 const path = require("path");
 const axios = require('axios');
 
-const CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
+// Fix: Use correct env variable for Azure Blob Storage
+const CONNECTION_STRING = process.env.BLOB_STORAGE_CONNECTION_STRING;
 const AZURE_FUNCTION_KEY = process.env.AZURE_FUNCTION_KEY;
 
 function generatePostId(userId) {
@@ -48,7 +49,7 @@ async function uploadToAzureBlob(filePaths, userId) {
       blobHTTPHeaders: { blobContentType: getMimeType(filePath) },
     });
 
-    console.log(`✅ Uploaded: ${newBlobName}`);
+    console.log(` Uploaded: ${newBlobName}`);
     uploadedNames.push(newBlobName);
   }
 
@@ -62,15 +63,15 @@ async function deleteBlobFromAzure(blobName, containerName, connectionString) {
 
   try {
     await blobClient.deleteIfExists();
-    console.log(`🗑️ Deleted blob: ${blobName}`);
+    console.log(` Deleted blob: ${blobName}`);
     return true;
   } catch (error) {
-    console.error(`❌ Failed to delete blob '${blobName}':`, error.message);
+    console.error(` Failed to delete blob '${blobName}':`, error.message);
     return false;
   }
 }
 
-async function uploadPostToTable(imageBlobNames, userId) {
+async function uploadPostToTable(imageBlobNames, userId, tableName) {
   if (imageBlobNames.length !== 4) {
     throw new Error("Exactly 4 image blob names are required");
   }
@@ -93,30 +94,31 @@ async function uploadPostToTable(imageBlobNames, userId) {
     };
 
     await tableClient.upsertEntity(entity);
-    console.log(`✅ Uploaded ${roles[i]} image to Table: ${imageBlobNames[i]}`);
+    console.log(` Uploaded ${roles[i]} image to Table: ${imageBlobNames[i]}`);
   }
 
-  console.log(`📦 Post '${postId}' uploaded with 4 individual image records`);
+  console.log(` Post '${postId}' uploaded with 4 individual image records`);
   return postId;
 }
 
 async function requestPotholePrediction(postId) {
-  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/predictPothole?postId=${postId}&code=${AZURE_FUNCTION_KEY}`;
+  // Fix: Use correct query param name for Azure Function
+  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/predictPothole?postid=${postId}&code=${AZURE_FUNCTION_KEY}`;
 
   try {
     const response = await axios.post(url, {}, {
       headers: { 'Content-Type': 'application/json' }
     });
 
-    console.log("✅ Prediction result:", response.data);
+    console.log(" Prediction result:", response.data);
     return response.data;
   } catch (err) {
-    console.error("❌ Request failed:", err.response?.data || err.message);
+    console.error(" Request failed:", err.response?.data || err.message);
     throw err;
   }
 }
 
-async function deletePostFromTable(postId) {
+async function deletePostFromTable(postId, tableName) {
   const tableClient = TableClient.fromConnectionString(CONNECTION_STRING, tableName);
 
   try {
@@ -135,11 +137,78 @@ async function deletePostFromTable(postId) {
     }
 
     if (!found) {
-      console.log(`⚠️ No entities found for post ID '${postId}'`);
+      console.log(` No entities found for post ID '${postId}'`);
     } else {
-      console.log(`✅ Deleted all entries for post ID '${postId}'`);
+      console.log(` Deleted all entries for post ID '${postId}'`);
     }
   } catch (err) {
-    console.error(`❌ Failed to delete entities for post '${postId}':`, err.message);
+    console.error(` Failed to delete entities for post '${postId}':`, err.message);
   }
 }
+
+/**
+ * Complete pothole verification flow as per UI Integration #2
+ * @param {string[]} filePaths - Local file paths of images to upload
+ * @param {string} userId - User ID
+ * @param {string} tableName - Azure Table name
+ * @returns {Promise<'Accepted'|'Rejected'>}
+ */
+async function verifyAndProcessPothole(filePaths, userId, tableName) {
+  // 1. Upload images to Azure Blob Storage
+  const uploadedNames = await uploadToAzureBlob(filePaths, userId);
+
+  // 2. Check if upload is complete (length check)
+  if (!uploadedNames || uploadedNames.length !== filePaths.length) {
+    throw new Error('Image upload failed or incomplete');
+  }
+
+  // 3. Upload the post to Table
+  let postId;
+  try {
+    postId = await uploadPostToTable(uploadedNames, userId, tableName);
+  } catch (err) {
+    // Clean up blobs if table upload fails
+    for (const blobName of uploadedNames) {
+      await deleteBlobFromAzure(blobName, 'images', CONNECTION_STRING);
+    }
+    throw err;
+  }
+
+  // 4. Call prediction API
+  let predictionJson;
+  try {
+    predictionJson = await requestPotholePrediction(postId);
+  } catch (err) {
+    // Clean up everything if prediction fails
+    for (const blobName of uploadedNames) {
+      await deleteBlobFromAzure(blobName, 'images', CONNECTION_STRING);
+    }
+    await deletePostFromTable(postId, tableName);
+    throw err;
+  }
+
+  // 5. Check results
+  let svdCount = 0, dmgCount = 0;
+  for (const key in predictionJson) {
+    const tag = predictionJson[key]?.pdt_tag;
+    if (tag === 'SVD') svdCount++;
+    if (tag === 'DMG') dmgCount++;
+  }
+
+  let status;
+  if (svdCount > 1 || dmgCount > 2) {
+    status = 'Accepted';
+    // (Skip: add post to user)
+  } else {
+    status = 'Rejected';
+    // Delete blobs and post
+    for (const blobName of uploadedNames) {
+      await deleteBlobFromAzure(blobName, 'images', CONNECTION_STRING);
+    }
+    await deletePostFromTable(postId, tableName);
+  }
+
+  return status;
+}
+
+module.exports = { verifyAndProcessPothole };
