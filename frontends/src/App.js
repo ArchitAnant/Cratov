@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 //  Page imports
+
 import ReportIssue from "./pages/ReportIssue";
 import Verify from "./pages/Verify";
 import PostDetail from "./pages/PostDetail";
@@ -9,6 +10,7 @@ import ProjectProgress from "./pages/ProjectProgress";
 import FundedDetail from "./pages/Funded"; 
 import ConstructionRating from "./pages/ConstructionRating"; 
 import Dashboard from "./pages/Dashboard";
+
 function App() {
   return (
     <BrowserRouter>

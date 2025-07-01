@@ -12,7 +12,18 @@ model = ModelWrapper()
 def predictPothole(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Trigger function triggered to predict potholes.')
     try:
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
         post_id = req.params.get('postid')
+        print(f"Received post_id: {post_id}")
 
         if not post_id:
             return func.HttpResponse(
@@ -29,6 +40,7 @@ def predictPothole(req: func.HttpRequest) -> func.HttpResponse:
         image_datas = list(image_dict.values())
 
         img_dict = {}
+
 
         for i in range(len(image_keys)):            
             result = model.predict(image_datas[i])
@@ -58,6 +70,17 @@ def predictPothole(req: func.HttpRequest) -> func.HttpResponse:
 def upload_post(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Trigger function triggered to upload post.')
     try:
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
+        
         resp_json = req.get_json()
         if not resp_json:
             return func.HttpResponse(

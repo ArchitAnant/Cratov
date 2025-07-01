@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import GuideLineBar from "../components/Action";
+import { useUpload } from "../context/UploadContext";
+
 
 const ReportIssue = () => {
-  const [images, setImages] = useState([null, null, null, null]);
+  const { images, setImages } = useUpload();
   const [address, setAddress] = useState("");
   const [showAddressInput, setShowAddressInput] = useState(false);
 
@@ -14,7 +16,7 @@ const ReportIssue = () => {
     const file = event.target.files[0];
     if (file) {
       const newImages = [...images];
-      newImages[index] = URL.createObjectURL(file);
+      newImages[index] = file;
       setImages(newImages);
     }
   };
@@ -84,7 +86,7 @@ const ReportIssue = () => {
               >
                 {img ? (
                   <img
-                    src={img}
+                    src={URL.createObjectURL(img)}
                     alt="preview"
                     className="w-full h-full object-cover rounded-[21px]"
                   />
