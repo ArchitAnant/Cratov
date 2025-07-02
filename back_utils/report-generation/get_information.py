@@ -5,7 +5,10 @@ import time
 from datetime import datetime, timedelta
 import os
 import rasterio
+from dotenv import load_dotenv
 from rasterio.transform import rowcol
+
+load_dotenv()
 
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 MAPMYINDIA_KEY = os.getenv("MAPMYINDIA_KEY")
@@ -42,19 +45,25 @@ def get_soil_properties(lat, lon):
     }
     try:
         response = requests.get(url, params=params)
+        print("Response collected")
         response.raise_for_status()
         data = response.json()
         result = {}
+        print(json.dumps(data, indent=2, ensure_ascii=False))
         for layer in data["properties"]["layers"]:
             name = layer["name"]
             value = layer["depths"][0]["values"]["mean"]
             if name == "phh2o":
+                print(value)
                 result["ph"] = round(value / 10, 2)
             elif name == "bdod":
+                print(value)
                 result["bulk_density_g_per_cm3"] = round(value / 100, 2)
             elif name == "ocd":
+                print(value)
                 result["organic_carbon_%"] = round(value / 10, 2)
             else:
+                print(value)
                 result[f"{name}_%"] = round(value / 10, 2)
         return result
     except Exception as e:
