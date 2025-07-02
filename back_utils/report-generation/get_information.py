@@ -1,42 +1,33 @@
 import requests
-import ee
 from serpapi import GoogleSearch
 import json
 import time
 from datetime import datetime, timedelta
-
+import os
+import rasterio
+from rasterio.transform import rowcol
 
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 MAPMYINDIA_KEY = os.getenv("MAPMYINDIA_KEY")
-PROJECT_ID = os.gotenv("PROJECT_ID")
 
 
-try:
-    ee.Initialize(project=PROJECT_ID)
-    print("\u2705 Google Earth Engine initialized.")
-except ee.EEException:
-    print("\u274C Earth Engine not authenticated. Run `earthengine authenticate`.")
-    exit()
-
-
-def get_population_density(lat, lon):
+def get_population_density_from_tif(lat, lon, tif_path="back_utils/report-generation/population_map.tif"):
     try:
-        point = ee.Geometry.Point(lon, lat)
-        collection = ee.ImageCollection("CIESIN/GPWv411/GPW_Population_Density")
-        image_2020 = collection.filterDate('2020-01-01', '2020-12-31').first()
-        if image_2020 is None:
-            return None
-        population_band = image_2020.select('population_density')
-        result = population_band.reduceRegion(
-            reducer=ee.Reducer.first(),
-            geometry=point,
-            scale=1000,
-            maxPixels=1e9
-        )
-        density = result.get('population_density').getInfo()
-        return round(density or 0.0, 2)
+        with rasterio.open(tif_path) as src:
+            if src.crs.to_epsg() != 4326:
+                raise ValueError("TIF is not in WGS84. Reproject or transform input.")
+
+            row, col = rowcol(src.transform, lon, lat)
+            pop_array = src.read(1)
+            value = pop_array[row, col]
+
+            if value is None or src.nodata is not None and value == src.nodata:
+                return None
+
+            return round(float(value), 2)
+
     except Exception as e:
-        print(f"Population error: {e}")
+        print(f"Population density error: {e}")
         return None
 
 
@@ -159,8 +150,8 @@ def get_location_data_with_user_input(lat, lon, address, start, end,
                                       PCI, RQI, BBD_deflection, traffic_volume, condition_rating):
 
     street, formatted_address = get_street_name_and_address(lat, lon)
-    soil_data = get_soil_properties(lat, lon)
-    pop_density = get_population_density(lat, lon)
+    soil_data = get_soil_properties(lat, lon) # requres 6 values after decimal point
+    pop_density = get_population_density_from_tif(lat, lon)
     weather_raw = get_weather_data_from_api(address)
     weather_forecast = parse_weather_forecast(weather_raw)
     traffic_data = get_road_traffic_analysis(start, end)
@@ -172,7 +163,6 @@ def get_location_data_with_user_input(lat, lon, address, start, end,
         "weather": {f"day{i+1}": day for i, day in enumerate(weather_forecast)},
         "population_density_km2": pop_density,
         "road_traffic": traffic_data,
-        "road": road,
         "length": length,
         "road_width": road_width,
         "maintenance_history": maintenance_history,
