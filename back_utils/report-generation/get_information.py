@@ -1,6 +1,4 @@
 import requests
-from serpapi import GoogleSearch
-import json
 import time
 from datetime import datetime, timedelta
 import os
@@ -12,9 +10,9 @@ load_dotenv()
 
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 MAPMYINDIA_KEY = os.getenv("MAPMYINDIA_KEY")
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
-
-def get_population_density_from_tif(lat, lon, tif_path="back_utils/report-generation/population_map.tif"):
+def get_population_density_from_tif(lat, lon, tif_path="population_map.tif"):
     try:
         with rasterio.open(tif_path) as src:
             if src.crs.to_epsg() != 4326:
@@ -45,25 +43,24 @@ def get_soil_properties(lat, lon):
     }
     try:
         response = requests.get(url, params=params)
-        print("Response collected")
+
         response.raise_for_status()
         data = response.json()
         result = {}
-        print(json.dumps(data, indent=2, ensure_ascii=False))
         for layer in data["properties"]["layers"]:
             name = layer["name"]
             value = layer["depths"][0]["values"]["mean"]
             if name == "phh2o":
-                print(value)
+
                 result["ph"] = round(value / 10, 2)
             elif name == "bdod":
-                print(value)
+
                 result["bulk_density_g_per_cm3"] = round(value / 100, 2)
             elif name == "ocd":
-                print(value)
+
                 result["organic_carbon_%"] = round(value / 10, 2)
             else:
-                print(value)
+
                 result[f"{name}_%"] = round(value / 10, 2)
         return result
     except Exception as e:
@@ -71,38 +68,30 @@ def get_soil_properties(lat, lon):
         return {}
 
 
-def get_weather_data_from_api(location_query):
-    params = {
-        "q": f"weather in {location_query}",
-        "hl": "en",
-        "gl": "us",
-        "api_key": SERPAPI_KEY
-    }
+def parse_weather_forcast(lat,lon):
+    url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&cnt=4&units=metric"
     try:
-        search = GoogleSearch(params)
-        results = search.get_dict()
-        return results.get("answer_box", None)
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        forecast = []
+        for item in data['list']:
+            day_data = {
+                "day": item['dt_txt'],
+                "temperature": {
+                    "high": item['main']['temp_max'],
+                    "low": item['main']['temp_min']
+                },
+                "condition": item['weather'][0]['description'],
+                "precipitation": item.get('rain', {}).get('1h', 0),
+                "humidity": item['main']['humidity'],
+                "wind": item['wind']['speed']
+            }
+            forecast.append(day_data)
+        return forecast
     except Exception as e:
-        print("Weather error:", e)
-        return None
-
-def parse_weather_forecast(weather_data):
-    if not weather_data or "forecast" not in weather_data:
+        print("Weather API error:", e)
         return []
-    parsed_forecast = []
-    for day_data in weather_data["forecast"][:7]:
-        parsed_forecast.append({
-            "day": day_data.get("day", "N/A"),
-            "condition": day_data.get("weather", "N/A"),
-            "temperature": {
-                "high": day_data.get("temperature", {}).get("high", "N/A"),
-                "low": day_data.get("temperature", {}).get("low", "N/A")
-            },
-            "precipitation": day_data.get("precipitation", "N/A"),
-            "humidity": day_data.get("humidity", "N/A"),
-            "wind": day_data.get("wind", "N/A")
-        })
-    return parsed_forecast
 
 
 def get_street_name_and_address(lat, lon):
@@ -161,8 +150,7 @@ def get_location_data_with_user_input(lat, lon, address, start, end,
     street, formatted_address = get_street_name_and_address(lat, lon)
     soil_data = get_soil_properties(lat, lon) # requres 6 values after decimal point
     pop_density = get_population_density_from_tif(lat, lon)
-    weather_raw = get_weather_data_from_api(address)
-    weather_forecast = parse_weather_forecast(weather_raw)
+    weather_forecast = parse_weather_forcast(lat,lon)
     traffic_data = get_road_traffic_analysis(start, end)
 
     return {
