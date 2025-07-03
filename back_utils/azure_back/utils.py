@@ -1,0 +1,262 @@
+# fetch images from post
+from dotenv import load_dotenv
+from azure.data.tables import TableServiceClient
+from azure.storage.blob import BlobServiceClient
+from datetime import datetime, timezone
+from report.dynamic_info import get_road_traffic_analysis, parse_weather_forcast
+from report.static_info import get_street_name_and_address, get_soil_properties, get_population_density_from_tif
+from report.openai_inference import OpenAIChat
+import random
+import base64
+import logging
+import io
+import os
+
+
+load_dotenv()
+
+def generate_post_id(user_id : str):
+    """
+    Generate a unique post ID based on user ID and current timestamp.
+    Format: userID_YYYYMMDD_HHMMSS_randomNumber
+    """
+    timestamp = datetime.now().strftime("%Y%m%H%M%S")
+    random_number = random.randint(1000, 9999)
+    return f"post_{user_id}_{timestamp}_{random_number}"
+
+def generate_image_id(user_id : str):
+    """
+    Generate a unique image ID based on user ID and current timestamp.
+    Format: userID_YYYYMMDD_HHMMSS_randomNumber.jpg
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    random_number = random.randint(1000, 9999)
+    return f"img_{user_id}_{timestamp}_{random_number}"
+
+def fetch_images(post_id: str):
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_client = TableServiceClient.from_connection_string(connection_string).get_table_client("posts")
+    entities = table_client.query_entities(f"PartitionKey eq '{post_id}'")
+
+    images = []
+
+    for entity in entities:       # e.g., 'front', 'left', etc.
+        image_id = entity["image_id"]   # blob filename
+        images.append(image_id)
+
+    return images
+
+def get_image_from_blob(blob_names, container_name="images"):
+    """
+    Fetch an image from Azure Blob Storage and return as BytesIO for model input.
+    """
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    images = {}
+
+    for name in blob_names:
+        try:
+            blob_client = blob_service_client.get_blob_client(container=container_name, blob=name)
+            blob_data = blob_client.download_blob().readall()
+            base64_str = blob_data.decode("utf-8")
+            decoded_bytes = base64.b64decode(base64_str)
+
+            image_stream = io.BytesIO(decoded_bytes)
+            image_stream.seek(0)
+
+            images[name] = image_stream
+
+            # read the blob data which was stored like this base64.b64encode(image_file.read()).decode("utf-8")
+
+
+
+        except Exception as e:
+            logging.error(f"Failed to fetch '{name}': {e}")
+            images[name] = None  # or raise depending on your needs
+
+    return images
+
+def upload_image_to_blob(image_data, image_id, container_name="images"):
+    """
+    Upload an image to Azure Blob Storage.
+    """
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=image_id)
+
+    try:
+        # If it's a BytesIO object, reset the cursor and get raw bytes
+        if isinstance(image_data, io.BytesIO):
+            image_data.seek(0)
+            image_data = image_data.read()
+
+        blob_client.upload_blob(image_data, overwrite=True)
+        logging.info(f"Image '{image_id}' uploaded successfully.")
+        return True
+    except Exception as e:
+        logging.error(f"Failed to upload '{image_id}': {e}")
+        return False
+
+def upload_post_to_table(post_id, landmark, coordinates, image_dict):
+    """
+    Upload post metadata to Azure Table Storage.
+    """
+
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service_client = TableServiceClient.from_connection_string(connection_string)
+    table_client = table_service_client.get_table_client("posts")
+
+    timestamp = datetime.now(timezone.utc).isoformat()
+    # upload landmark and coordinates
+    entity = {
+        "PartitionKey": post_id,
+        "RowKey": "metadata",
+        "landmark": landmark,
+        "coordinates": coordinates,
+        "uploaded_at": timestamp,
+        "post_condition" : "Awaiting Approval"  
+    }
+
+    for role , image_name in image_dict.items():
+        entity = {
+            "PartitionKey": post_id,
+            "RowKey": role,
+            "image_id": image_name,
+            "uploaded_at": timestamp
+        }
+        table_client.upsert_entity(entity)
+
+def add_road_condition(post_id, road_condition):
+    """
+    Add or update the road condition for a post in Azure Table Storage.
+    """
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service_client = TableServiceClient.from_connection_string(connection_string)
+    table_client = table_service_client.get_table_client("posts")
+
+    try:
+        entity = table_client.query_entities(f"PartitionKey eq '{post_id}' and RowKey eq 'metadata'")[0]
+        entity["road_condition"] = road_condition
+        table_client.update_entity(entity)
+        logging.info(f"Road condition for '{post_id}' updated to '{road_condition}'.")
+        return True
+    except Exception as e:
+        logging.error(f"Failed to update road condition for '{post_id}': {e}")
+        return False
+
+def add_post_bid(post_id,current_bid,current_bidder_id):
+    pass
+
+def update_post_condition(post_id, condition):
+    """
+    Update the post condition in Azure Table Storage.
+    """
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service_client = TableServiceClient.from_connection_string(connection_string)
+    table_client = table_service_client.get_table_client("posts")
+
+    try:
+        entity = table_client.query_entities(f"PartitionKey eq '{post_id}' and RowKey eq 'metadata'")[0]
+        entity["post_condition"] = condition
+        table_client.update_entity(entity)
+        logging.info(f"Post condition for '{post_id}' updated to '{condition}'.")
+        return True
+    except Exception as e:
+        logging.error(f"Failed to update post condition for '{post_id}': {e}")
+        return False
+    
+def fetch_post(post_id):
+    """
+    Fetch post metadata from Azure Table Storage.
+    """
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service_client = TableServiceClient.from_connection_string(connection_string)
+    table_client = table_service_client.get_table_client("posts")
+
+    try:
+        entity = table_client.query_entities(f"PartitionKey eq '{post_id}'")[0]
+        resp = {}
+        if entity["RowKey"] == "metadata":
+                resp["landmark"] = entity.get("landmark", "")
+                resp["coordinates"] = entity.get("coordinates", "")
+                resp["uploaded_at"] = entity.get("uploaded_at", "")
+                resp["road_condition"] = entity.get("road_condition", "")
+                resp["post_condition"] = entity.get("post_condition", "")
+        elif entity["RowKey"] in ["front", "left", "right", "back"]:
+                role = entity["RowKey"]
+                image_id = entity.get("image_id", "")
+                resp[role] = {
+                    "image_id": image_id,
+                }
+        elif entity["RowKey"] == "static_metadata":
+            resp["staic_metadata"] = entity.get("static_metadata", {})
+
+        return resp
+    except Exception as e:
+        logging.error(f"Failed to fetch metadata for '{post_id}': {e}")
+        return None
+
+def build_static_metadata(lat, lon,length, road_width,
+                           maintenance_history,road_surface, 
+                           road_geometry, road_safety_features,
+                           PCI, RQI, BBD_deflection):
+    
+    street, formatted_address = get_street_name_and_address(lat, lon)
+    soil_data = get_soil_properties(lat, lon)
+    pop_density = get_population_density_from_tif(lat, lon)
+
+    return {
+        "street_name": street,
+        "address": formatted_address,
+        "soil": soil_data,
+        "population_density_km2": pop_density,
+        "length": length,
+        "road_width": road_width,
+        "maintenance_history": maintenance_history,
+        "road_surface": road_surface,
+        "road_geometry": road_geometry,
+        "road_safety_features": road_safety_features,
+        "PCI": PCI,
+        "RQI": RQI,
+        "BBD_deflection": BBD_deflection,
+    }
+
+def upload_static_metadata(post_id, lat, lon,length, road_width,
+                           maintenance_history,road_surface, 
+                           road_geometry, road_safety_features,
+                           PCI, RQI, BBD_deflection):
+    """
+    Upload static metadata to Azure Table Storage.
+    """
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service_client = TableServiceClient.from_connection_string(connection_string)
+    table_client = table_service_client.get_table_client("posts")
+
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    static_metadata = build_static_metadata(lat, lon,length, road_width,
+                           maintenance_history,road_surface, 
+                           road_geometry, road_safety_features,
+                           PCI, RQI, BBD_deflection)
+    
+    entity = {
+        "PartitionKey": post_id,
+        "RowKey": "static_metadata",
+        "static_metadata": static_metadata,
+        "uploaded_at": timestamp
+    }
+
+    table_client.upsert_entity(entity)
+
+def get_report_dict(coordinates, metadata_report):
+    report = metadata_report
+    report["road_traffic"] = get_road_traffic_analysis(coordinates[0], coordinates[1])
+    report["weather_forcast"] = parse_weather_forcast(coordinates[0],coordinates[1])
+
+    return report
+
+def generate_report(coordinates, metadata_report):
+    report_dict = get_report_dict(coordinates, metadata_report)
+    openai = OpenAIChat()
+    md_report = openai.chat_completion(report_dict)
+    return md_report

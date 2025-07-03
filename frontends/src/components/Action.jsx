@@ -35,7 +35,8 @@ const GuideLineBar = ({onActionButtonClick,actionButtonText,buttonDisable}) => {
             such images would lead to account termination.
           </p>
         </div>
-        <div className="pt-20">
+        <div className="pt-10"></div>
+        <div >
         <ActionButton onClick={onActionButtonClick} action={actionButtonText} ifDisable={buttonDisable} />
         </div>
       </div>

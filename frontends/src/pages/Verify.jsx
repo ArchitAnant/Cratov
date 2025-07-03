@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRef } from "react";
 import { useUpload } from "../context/UploadContext";
 import GuideLineBar from "../components/Action";
-import {createImageUploadPayload,uploadImagesToBackend,predictPotholes,checkAcceptance} from "../helper"; // Import the helper function
+import {createImageUploadPayload,uploadPostToBackend,predictPotholes,checkAcceptance} from "../helper"; // Import the helper function
 
 const Verify = () => {
   const [progress, setProgress] = useState(10);
@@ -15,7 +15,7 @@ const Verify = () => {
   const [showResult, setShowResult] = useState(false);
   const fileInputRef = useRef();
   const navigate = useNavigate();
-  const images  = useUpload();
+  const upload  = useUpload();
 
 
   const handlePost = async () => {
@@ -27,9 +27,9 @@ const Verify = () => {
     setShowResult(false);
     try {
       console.log("Uploading images...");
-      const payload = await createImageUploadPayload(images.images, "testuser");
+      const payload = await createImageUploadPayload(upload.images, "testuser");
       console.log("Payload created..");
-      const postid_json = await uploadImagesToBackend(payload);
+      const postid_json = await uploadPostToBackend(payload);
       setProgress(50);
       setStatus("Validating");
       console.log("Post ID received");
@@ -60,14 +60,14 @@ const Verify = () => {
 const hasPostedRef = useRef(false);
 
 useEffect(() => {
-  if (!hasPostedRef.current && images.images.length > 0) {
+  if (!hasPostedRef.current && upload.images.length > 0) {
     handlePost();
     hasPostedRef.current = true;
-  } else if (!hasPostedRef.current && images.images.length === 0) {
+  } else if (!hasPostedRef.current && upload.images.length === 0) {
     navigate("/reportissue");
     hasPostedRef.current = true;
   }
-}, [images.images, navigate]);
+}, [upload.images, navigate]);
 
   return (
     <div className="font-poppins flex flex-col md:flex-row gap-8 pt-24 pb-10 min-h-screen bg-white">

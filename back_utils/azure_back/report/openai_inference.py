@@ -23,7 +23,7 @@ class OpenAIChat:
                         "role": "system",
                         "content": """You are a helpful assistant to generate road related reports in India based on the provided data.
                         Firstly you well report the Read Features point wise straight like a key value pair.
-                        Elaborate each subpoint in Road Assessment Data with 2 lines.
+                        Elaborate each subpoint in Road Assessment Data with 2 lines but for the fields having no values just write no data provided.
                         Then, provide a detailed analysis of the Demographic Data.
                         Finally, summarize the entire report in a concise manner.""",
                     },
@@ -40,11 +40,3 @@ class OpenAIChat:
                 model=self.deployment
             )
         return response.choices[0].message.content
-
-
-
-
-
-# openai_chat = OpenAIChat()
-# response = openai_chat.chat_completion(road_context)
-# print(response)

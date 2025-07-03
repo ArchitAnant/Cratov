@@ -15,10 +15,12 @@ function readFileAsBase64(file) {
     reader.readAsDataURL(file); // trigger onload
   });
 }
-async function createImageUploadPayload(selectedFiles, userID) {
+async function createImageUploadPayload(selectedFiles, userID,landmark,coordinates) {
 
   const payload = {
-    userID,
+    userID : userID,
+    landmark: landmark || "Unknown",
+    coordinates: coordinates || "0,0" // Default to "0,0" if
   };
 
   for (let i = 0; i < 4; i++) {
@@ -34,7 +36,7 @@ async function createImageUploadPayload(selectedFiles, userID) {
   return payload;
 }
 
-async function uploadImagesToBackend(payload) {
+async function uploadPostToBackend(payload) {
   const azureUrl = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/uploadpost?code=${AZURE_FUNCTION_KEY}`;
 
   try {
@@ -112,4 +114,4 @@ function checkAcceptance(response) {
   }
 }
 
-export { createImageUploadPayload, uploadImagesToBackend, predictPotholes,checkAcceptance };
+export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance };

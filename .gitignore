@@ -13,3 +13,5 @@ back_utils/uploads/
 node_modules/
 # Ignore lock files
 package-lock.json
+
+__pycache__/
