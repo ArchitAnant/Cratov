@@ -3,10 +3,10 @@
 const TopBar = ()=>{
     // var navigate = useNavigate();
     return (
-        <div className="fixed flex flex-row w-full px-10 pt-[30px] pb-[20px] mb-5 bg-white">
-        <h1 className="font-medium text-[14px] cursor-pointer">CRATOV</h1>
+        <div className="fixed flex flex-row w-full px-10 h-20 pb-[20px] mb-5 bg-white z-10">
+        <h1 className="font-medium text-[14px] cursor-pointer pt-10">CRATOV</h1>
         <div className="flex-grow"></div>
-        <h1 className="font-regular text-[12px] cursor-pointer">PORFILE</h1>
+        <h1 className="font-regular text-[12px] cursor-pointer pt-10">PORFILE</h1>
         </div>
     );
 }

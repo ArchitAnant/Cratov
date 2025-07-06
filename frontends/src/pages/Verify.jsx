@@ -27,7 +27,7 @@ const Verify = () => {
     setShowResult(false);
     try {
       console.log("Uploading images...");
-      const payload = await createImageUploadPayload(upload.images, "testuser");
+      const payload = await createImageUploadPayload(upload.images, "testuser",upload.stringLandmark,upload.location);
       console.log("Payload created..");
       const postid_json = await uploadPostToBackend(payload);
       setProgress(50);
@@ -76,12 +76,12 @@ useEffect(() => {
         <h2 className="text-[30px] font-medium mb-8 leading-[100%] text-black">
           Report A Pothole
         </h2>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex w-full lg:max-w-[800px] max-w-[200px] items-center justify-between mb-6">
           <p className="text-[18px] opacity-80">{status}</p>
           <Bookmark size={20} className="text-black" />
         </div>
         {/* Upload Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-7">
+        <div className="w-full lg:max-w-[800px] max-w-[200px bg-gray-200 rounded-full h-7">
           <div
             className={`${barColor} h-7 rounded-full transition-all duration-500`}
             style={{ width: `${progress}%` }}

@@ -63,7 +63,7 @@ function LocationPicker({ initialPostion,onSelect }) {
 
 const MapSelector = ({ location, onLocationSelect }) => (
   <MapContainer
-  className="h-[250px] w-[800px] mb-8 rounded-[21px] "
+  className="h-[250px] w-[800px] mb-8 rounded-[21px]"
     center={[location.lat, location.lon]}
     zoom={13}
     // style={{ height: "400px", width: "100%", marginBottom: "2rem" }}
@@ -103,6 +103,9 @@ const ReportIssue = () => {
     }
     else{
       setLocation(useMapEvents.location)
+      console.log("Location set to:", location);
+      setStringLandmark(address);
+      console.log("Landmark set to:", address);
     }
     if (images.some((img) => img === null)) {
       alert("Please upload all 4 images.");
