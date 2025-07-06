@@ -18,7 +18,7 @@ const ActionButton = ({onClick, action,ifDisable}) => {
 
 const GuideLineBar = ({onActionButtonClick,actionButtonText,buttonDisable}) => {
     return (
-        <div className="w-full md:w-[30%] pr-[86px] me-5">
+        <div className="fixed top-24 right-0 h-full w-full md:w-[30%] pr-[86px] me-5 overflow-y-auto bg-white">
         <div className="mb-8">
           <h4 className="font-medium text-lg mb-10">Guidelines :</h4>
           <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 ms-2">

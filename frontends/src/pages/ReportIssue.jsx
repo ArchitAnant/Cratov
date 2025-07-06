@@ -81,7 +81,8 @@ const ReportIssue = () => {
   const { images, setImages, location, setLocation, stringLandmark, setStringLandmark  } = useUpload();
   const [address, setAddress] = useState("");
   const [showAddressInput, setShowAddressInput] = useState(false);
-  const { coodinate, error } = useCurrentLocation();
+  const { location : coodinate, error: error } = useCurrentLocation();
+  setLocation(coodinate);
 
   const navigate = useNavigate();
 
@@ -111,7 +112,7 @@ const ReportIssue = () => {
   };
 
   return (
-    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-24 mb-10 min-h-screen bg-white">
+    <div className="font-poppins flex flex-col md:flex-row gap-8 mb-10 pt-24 min-h-screen bg-white">
       {/* Left Section */}
       
       <div className="flex-1 pl-[86px]">
@@ -135,10 +136,10 @@ const ReportIssue = () => {
          
         </div>
         {error && <p className="text-red-500">Error: {error}</p>}
-      {!coodinate && !error && <p className="text-gray-600">Fetching your location...</p>}
-      {coodinate && (
+      {!location && !error && <p className="text-gray-600">Fetching your location...</p>}
+      {location && (
         <MapSelector
-          location={coodinate}
+          location={location}
           onLocationSelect={(loc) => console.log("📍 Selected:", loc)}
         />
       )}

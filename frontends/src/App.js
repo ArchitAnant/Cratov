@@ -10,10 +10,14 @@ import ProjectProgress from "./pages/ProjectProgress";
 import FundedDetail from "./pages/Funded"; 
 import ConstructionRating from "./pages/ConstructionRating"; 
 import Dashboard from "./pages/Dashboard";
+import TopBar from "./components/TopBar"; // Importing TopBar component
 
 function App() {
   return (
-    <BrowserRouter>
+    <>
+    {/* Including TopBar component */}
+    <BrowserRouter >
+      <TopBar /> 
       <Routes>
         <Route path="/" element={<ReportIssue />} />
         <Route path="/verify" element={<Verify />} />
@@ -25,6 +29,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
+    </>
   );
 }
 
