@@ -47,7 +47,7 @@ const Home = () => {
         border: '1px solid #ccc',
         padding: '24px',
         boxSizing: 'border-box',
-        backgroundColor: '#fff',
+        backgroundColor: '#D9D9D9',
       }}
     >
       <div className="flex justify-between items-center mb-4">
@@ -93,7 +93,7 @@ const Home = () => {
         border: '1px solid #ccc',
         padding: '24px',
         boxSizing: 'border-box',
-        backgroundColor: '#fff',
+        backgroundColor: '#D9D9D9',
       }}
     >
       <div className="flex justify-between items-center mb-4">
@@ -116,7 +116,7 @@ const Home = () => {
       <p className="text-xs text-green-600 font-medium mb-1">Approved</p>
       <p className="text-xs text-yellow-500 font-medium mb-2">On Bid</p>
       <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#D9D9D9]/50 rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 bg-[#fff]/50 rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-black rounded-full"></div>
             </div>
             <p className="text-sm font-semibold">₹1.50 Cr</p>
