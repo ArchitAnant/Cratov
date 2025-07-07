@@ -22,8 +22,8 @@ function App() {
         <TopBar />
         <Routes>
           <Route path="/home" element={<Home />} />
-          <Route path="/" element={<Home />} /> {/* Default route now opens Home */}
-          <Route path="/reportissue" element={<ReportIssue />} /> {/* Add explicit route for ReportIssue */}
+          <Route path="/" element={<Home />} /> 
+          <Route path="/reportissue" element={<ReportIssue />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/postdetail" element={<PostDetail />} />
           <Route path="/bidding" element={<BiddingDetail />} />
@@ -31,7 +31,7 @@ function App() {
           <Route path="/funded" element={<FundedDetail />} />
           <Route path="/rate-construction" element={<ConstructionRating />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} /> {/* ✅ New Route */}
+          <Route path="/profile" element={<Profile />} />
           <Route path="/agency-profile" element={<AgencyProfile />} />
         </Routes>
         <Footer />
