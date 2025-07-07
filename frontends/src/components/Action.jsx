@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 
-const ActionButton = ({onClick, action,ifDisable}) => {
+export const ActionButton = ({onClick, action,ifDisable}) => {
     return (
         <button
           disabled = {ifDisable}
@@ -16,7 +16,7 @@ const ActionButton = ({onClick, action,ifDisable}) => {
     )
 }
 
-const GuideLineBar = ({onActionButtonClick,actionButtonText,buttonDisable}) => {
+export const GuideLineBar = ({onActionButtonClick,actionButtonText,buttonDisable}) => {
     return (
         <div className="fixed top-24 right-0 h-full w-full md:w-[30%] pr-[86px] me-5 overflow-y-auto ">
         <div className="mb-8">
@@ -42,8 +42,3 @@ const GuideLineBar = ({onActionButtonClick,actionButtonText,buttonDisable}) => {
       </div>
     )
 }
-
-
-
-
-export default GuideLineBar;

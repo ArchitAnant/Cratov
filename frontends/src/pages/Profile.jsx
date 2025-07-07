@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 const Profile = () => {
   const navigate = useNavigate();
   return (
-    <div className="font-poppins px-8 py-20 min-h-screen bg-white">
+    <div className="font-poppins px-8 py-8 min-h-screen bg-white">
       {/* Profile Header */}
       <div className="flex flex-col md:flex-row justify-between mb-12" style={{ position: 'relative' }}>
         <div className="flex flex-col gap-4">
           <h2 className="text-[26px] md:text-[30px] font-medium text-black">Profile</h2>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5 pt-10">
             <img
               src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
               alt="Profile"

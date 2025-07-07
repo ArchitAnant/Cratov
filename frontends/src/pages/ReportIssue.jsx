@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import GuideLineBar from "../components/Action";
+import {GuideLineBar} from "../components/Action";
 import { useUpload } from "../context/UploadContext";
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';

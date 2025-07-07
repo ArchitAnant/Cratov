@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Bookmark } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useRef } from "react";
 import { useUpload } from "../context/UploadContext";
-import GuideLineBar from "../components/Action";
+import {GuideLineBar} from "../components/Action";
 import {createImageUploadPayload,uploadPostToBackend,predictPotholes,checkAcceptance} from "../helper"; // Import the helper function
 
 const Verify = () => {
@@ -13,7 +12,6 @@ const Verify = () => {
   const [status, setStatus] = useState("Waiting");
   const [barColor, setBarColor] = useState("bg-black");
   const [showResult, setShowResult] = useState(false);
-  const fileInputRef = useRef();
   const navigate = useNavigate();
   const upload  = useUpload();
 
@@ -70,7 +68,7 @@ useEffect(() => {
 }, [upload.images, navigate]);
 
   return (
-    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-24 pb-10 min-h-screen bg-white">
+    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-10 pb-10 min-h-screen bg-white">
       {/* Left Section */}
       <div className="flex-1 pl-[86px]">
         <h2 className="text-[30px] font-medium mb-8 leading-[100%] text-black">
