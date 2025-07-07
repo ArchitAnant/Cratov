@@ -15,7 +15,7 @@ const StatusCard = ({
     <div
       className="bg-[#D9D9D9]/50 rounded-3xl shadow-md 
       w-[298px] h-[266px] flex flex-col justify-between 
-      p-4 font-poppins ml-[86px]"
+      p-4 font-poppins ml-6"
     >
       {/* Header */}
       <div className="flex justify-between items-start">

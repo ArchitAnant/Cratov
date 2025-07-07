@@ -109,9 +109,7 @@ useEffect(() => {
 
       </div>
       {/* Right Section */}
-      <GuideLineBar  actionButtonText={"Post"} buttonDisable={uploading}></GuideLineBar>
-
- 
+      <GuideLineBar  actionButtonText={"Post"} buttonDisable={uploading} onActionButtonClick={() => navigate("/postdetail")} />
     </div>
   );
 };
