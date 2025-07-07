@@ -1,9 +1,14 @@
 const Footer = () => (
-  <div className="flex justify-between items-center w-full fixed bottom-0 left-0 px-8 py-4 bg-white border-t border-gray-200 text-xs text-gray-400 z-50">
-    <p>
-      CRATOV <span className="ml-2">Copyright 2025</span>
+  <div className="flex justify-between items-center w-full px-8 py-5 bg-white border-t border-gray-200 z-50">
+    <p className="flex flex-col  items-start">
+      <h1 className="text-[14px] font-medium text-black">
+        CRATOV
+      </h1>  
+      <span className="text-[12px] font-regular text-black opacity-50">
+        Copyright &copy; {new Date().getFullYear()} Cratov
+      </span>
     </p>
-    <div className="flex gap-4">
+    <div className="flex text-[12px] font-regular text-black opacity-50 gap-4">
       <a
         href="https://github.com/ArchitAnant/Cratov.git"
         target="_blank"

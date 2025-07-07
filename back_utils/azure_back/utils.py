@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 from azure.data.tables import TableServiceClient
 from azure.storage.blob import BlobServiceClient
 from datetime import datetime, timezone
-from report.dynamic_info import get_road_traffic_analysis, parse_weather_forcast
-from report.static_info import get_street_name_and_address, get_soil_properties, get_population_density_from_tif
-from report.openai_inference import OpenAIChat
+# from report.dynamic_info import get_road_traffic_analysis, parse_weather_forcast
+# from report.static_info import get_street_name_and_address, get_soil_properties, get_population_density_from_tif
+# from report.openai_inference import OpenAIChat
 import random
 import base64
 import logging
@@ -41,8 +41,9 @@ def fetch_images(post_id: str):
     images = []
 
     for entity in entities:       # e.g., 'front', 'left', etc.
-        image_id = entity["image_id"]   # blob filename
-        images.append(image_id)
+        if entity["RowKey"] != "metadata":
+            image_id = entity["image_id"]   # blob filename
+            images.append(image_id)
 
     return images
 
@@ -112,10 +113,11 @@ def upload_post_to_table(post_id, landmark, coordinates, image_dict):
         "PartitionKey": post_id,
         "RowKey": "metadata",
         "landmark": landmark,
-        "coordinates": coordinates,
+        "coordinates": f"{coordinates['lat']},{coordinates['lon']}",
         "uploaded_at": timestamp,
         "post_condition" : "Awaiting Approval"  
     }
+    table_client.upsert_entity(entity)
 
     for role , image_name in image_dict.items():
         entity = {
@@ -196,67 +198,67 @@ def fetch_post(post_id):
         logging.error(f"Failed to fetch metadata for '{post_id}': {e}")
         return None
 
-def build_static_metadata(lat, lon,length, road_width,
-                           maintenance_history,road_surface, 
-                           road_geometry, road_safety_features,
-                           PCI, RQI, BBD_deflection):
+# def build_static_metadata(lat, lon,length, road_width,
+#                            maintenance_history,road_surface, 
+#                            road_geometry, road_safety_features,
+#                            PCI, RQI, BBD_deflection):
     
-    street, formatted_address = get_street_name_and_address(lat, lon)
-    soil_data = get_soil_properties(lat, lon)
-    pop_density = get_population_density_from_tif(lat, lon)
+#     street, formatted_address = get_street_name_and_address(lat, lon)
+#     soil_data = get_soil_properties(lat, lon)
+#     pop_density = get_population_density_from_tif(lat, lon)
 
-    return {
-        "street_name": street,
-        "address": formatted_address,
-        "soil": soil_data,
-        "population_density_km2": pop_density,
-        "length": length,
-        "road_width": road_width,
-        "maintenance_history": maintenance_history,
-        "road_surface": road_surface,
-        "road_geometry": road_geometry,
-        "road_safety_features": road_safety_features,
-        "PCI": PCI,
-        "RQI": RQI,
-        "BBD_deflection": BBD_deflection,
-    }
+#     return {
+#         "street_name": street,
+#         "address": formatted_address,
+#         "soil": soil_data,
+#         "population_density_km2": pop_density,
+#         "length": length,
+#         "road_width": road_width,
+#         "maintenance_history": maintenance_history,
+#         "road_surface": road_surface,
+#         "road_geometry": road_geometry,
+#         "road_safety_features": road_safety_features,
+#         "PCI": PCI,
+#         "RQI": RQI,
+#         "BBD_deflection": BBD_deflection,
+#     }
 
-def upload_static_metadata(post_id, lat, lon,length, road_width,
-                           maintenance_history,road_surface, 
-                           road_geometry, road_safety_features,
-                           PCI, RQI, BBD_deflection):
-    """
-    Upload static metadata to Azure Table Storage.
-    """
-    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
-    table_service_client = TableServiceClient.from_connection_string(connection_string)
-    table_client = table_service_client.get_table_client("posts")
+# def upload_static_metadata(post_id, lat, lon,length, road_width,
+#                            maintenance_history,road_surface, 
+#                            road_geometry, road_safety_features,
+#                            PCI, RQI, BBD_deflection):
+#     """
+#     Upload static metadata to Azure Table Storage.
+#     """
+#     connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+#     table_service_client = TableServiceClient.from_connection_string(connection_string)
+#     table_client = table_service_client.get_table_client("posts")
 
-    timestamp = datetime.now(timezone.utc).isoformat()
+#     timestamp = datetime.now(timezone.utc).isoformat()
 
-    static_metadata = build_static_metadata(lat, lon,length, road_width,
-                           maintenance_history,road_surface, 
-                           road_geometry, road_safety_features,
-                           PCI, RQI, BBD_deflection)
+#     static_metadata = build_static_metadata(lat, lon,length, road_width,
+#                            maintenance_history,road_surface, 
+#                            road_geometry, road_safety_features,
+#                            PCI, RQI, BBD_deflection)
     
-    entity = {
-        "PartitionKey": post_id,
-        "RowKey": "static_metadata",
-        "static_metadata": static_metadata,
-        "uploaded_at": timestamp
-    }
+#     entity = {
+#         "PartitionKey": post_id,
+#         "RowKey": "static_metadata",
+#         "static_metadata": static_metadata,
+#         "uploaded_at": timestamp
+#     }
 
-    table_client.upsert_entity(entity)
+#     table_client.upsert_entity(entity)
 
-def get_report_dict(coordinates, metadata_report):
-    report = metadata_report
-    report["road_traffic"] = get_road_traffic_analysis(coordinates[0], coordinates[1])
-    report["weather_forcast"] = parse_weather_forcast(coordinates[0],coordinates[1])
+# def get_report_dict(coordinates, metadata_report):
+#     report = metadata_report
+#     report["road_traffic"] = get_road_traffic_analysis(coordinates[0], coordinates[1])
+#     report["weather_forcast"] = parse_weather_forcast(coordinates[0],coordinates[1])
 
-    return report
+#     return report
 
-def generate_report(coordinates, metadata_report):
-    report_dict = get_report_dict(coordinates, metadata_report)
-    openai = OpenAIChat()
-    md_report = openai.chat_completion(report_dict)
-    return md_report
+# def generate_report(coordinates, metadata_report):
+#     report_dict = get_report_dict(coordinates, metadata_report)
+#     openai = OpenAIChat()
+#     md_report = openai.chat_completion(report_dict)
+#     return md_report

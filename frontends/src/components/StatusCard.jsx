@@ -13,7 +13,7 @@ const StatusCard = ({
 
   return (
     <div
-      className="bg-[#D9D9D9]/50 rounded-3xl shadow-md 
+      className="bg-black bg-opacity-3 rounded-3xl shadow-md 
       w-[298px] h-[266px] flex flex-col justify-between 
       p-4 font-poppins ml-6"
     >

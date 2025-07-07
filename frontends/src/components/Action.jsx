@@ -8,7 +8,7 @@ const ActionButton = ({onClick, action,ifDisable}) => {
           className={`flex items-center justify-center gap-2 
             w-[137px] h-[40px] rounded-[49px] 
             bg-black text-white text-[13px]
-            hover:bg-gray-800 ${ifDisable ? "opacity-50 cursor-not-allowed" : "opacity-100 cursor-pointer"}`}
+            hover:bg-gray-500 ${ifDisable ? "opacity-50 cursor-not-allowed" : "opacity-100 cursor-pointer"}`}
         >
           {action} 
          <ArrowRight size={16} strokeWidth={2.5} />
@@ -18,7 +18,7 @@ const ActionButton = ({onClick, action,ifDisable}) => {
 
 const GuideLineBar = ({onActionButtonClick,actionButtonText,buttonDisable}) => {
     return (
-        <div className="fixed top-24 right-0 h-full w-full md:w-[30%] pr-[86px] me-5 overflow-y-auto bg-white">
+        <div className="fixed top-24 right-0 h-full w-full md:w-[30%] pr-[86px] me-5 overflow-y-auto ">
         <div className="mb-8">
           <h4 className="font-medium text-lg mb-10">Guidelines :</h4>
           <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 ms-2">

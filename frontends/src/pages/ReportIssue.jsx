@@ -115,7 +115,7 @@ const ReportIssue = () => {
   };
 
   return (
-    <div className="font-poppins flex flex-col md:flex-row gap-8 mb-10 pt-24 min-h-screen bg-white">
+    <div className="font-poppins flex flex-col md:flex-row gap-8 mb-10 pt-10 min-h-screen bg-white">
       {/* Left Section */}
       
       <div className="flex-1 pl-[86px]">
@@ -132,7 +132,7 @@ const ReportIssue = () => {
             <input
               type="text"
               placeholder="Enter location or address"
-              className="border text-[15px] border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring focus:ring-gray-400"
+              className="border text-[15px] border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring focus:ring-blue-600 transition-colors duration-200"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
