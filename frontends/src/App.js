@@ -22,7 +22,8 @@ function App() {
         <TopBar />
         <Routes>
           <Route path="/home" element={<Home />} />
-          <Route path="/" element={<ReportIssue />} />
+          <Route path="/" element={<Home />} /> {/* Default route now opens Home */}
+          <Route path="/reportissue" element={<ReportIssue />} /> {/* Add explicit route for ReportIssue */}
           <Route path="/verify" element={<Verify />} />
           <Route path="/postdetail" element={<PostDetail />} />
           <Route path="/bidding" element={<BiddingDetail />} />

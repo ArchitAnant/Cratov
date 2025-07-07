@@ -46,7 +46,7 @@ const AgencyProfile = () => {
             <span className="text-lg">✏️</span> Edit Profile
           </button>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/reportissue")}
             className="flex items-center gap-2 text-sm text-black hover:underline bg-gray-100 w-full h-12 rounded-xl shadow-md px-4"
           >
             <span className="text-lg">➕</span> Add Pothole
