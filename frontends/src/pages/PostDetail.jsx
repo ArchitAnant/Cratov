@@ -1,6 +1,15 @@
+import { useEffect, useState } from "react";
 import { Bookmark, Phone } from "lucide-react";
+import { getPostData } from "../context/post";
 
 const PostDetail = () => {
+  const [post, setPost] = useState({ address: "", images: [] });
+
+  useEffect(() => {
+    const data = getPostData();
+    if (data) setPost(data);
+  }, []);
+
   return (
     <div className="min-h-screen bg-white pt-24 pb-10 px-[86px] font-poppins">
       <div className="flex flex-col md:flex-row gap-10">
@@ -8,7 +17,7 @@ const PostDetail = () => {
         <div className="flex-1">
           <h2 className="text-[24px] font-semibold mb-2">Pothole Report</h2>
           <p className="text-[14px] text-gray-600 mb-4">
-            48, Thakurpukur, Bibirhat - Bakrahat - Raipur Rd
+            {post.address || "No address provided"}
           </p>
 
           {/* Current Status */}
@@ -21,12 +30,29 @@ const PostDetail = () => {
 
           {/* Image Gallery */}
           <div className="flex gap-4 mb-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="w-[80px] h-[80px] bg-gray-200 rounded-[20px]"
-              ></div>
-            ))}
+            {post.images && post.images.length > 0 ? (
+              post.images.map((img, i) => (
+                <div
+                  key={i}
+                  className="w-[80px] h-[80px] bg-gray-200 rounded-[20px] overflow-hidden"
+                >
+                  {img && (
+                    <img
+                      src={img}
+                      alt={`uploaded-${i}`}
+                      className="w-full h-full object-cover rounded-[20px]"
+                    />
+                  )}
+                </div>
+              ))
+            ) : (
+              [1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="w-[80px] h-[80px] bg-gray-200 rounded-[20px]"
+                />
+              ))
+            )}
           </div>
 
           {/*  Upvote Section Fixed */}
