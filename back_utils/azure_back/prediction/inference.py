@@ -1,7 +1,7 @@
 import torch
 from PIL import Image
 from torchvision import transforms
-from HttpTrigger.model import get_model
+from prediction.model import get_model
 import os
 
 class ModelWrapper:

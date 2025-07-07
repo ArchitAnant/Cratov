@@ -1,4 +1,5 @@
-import { Bookmark, Phone, ArrowRight } from "lucide-react";
+import { Bookmark, CornerLeftUp, ArrowRight } from "lucide-react";
+import {ActionButton} from "./Action"; // Assuming you have an ActionButton component
 
 const StatusCard = ({
   username,
@@ -6,16 +7,16 @@ const StatusCard = ({
   address,
   status,
   bidStatus,
-  phoneCount,
+  voteCount,
   price,
 }) => {
   const isApproved = status === "Approved";
 
   return (
     <div
-      className="bg-[#D9D9D9]/50 rounded-3xl shadow-md 
-      w-[298px] h-[266px] flex flex-col justify-between 
-      p-4 font-poppins ml-[86px]"
+      className="bg-black bg-opacity-[0.03] rounded-[50px]
+      w-[338px] h-[326px] flex flex-col justify-between 
+      pt-9 px-9 pb-5 font-poppins ml-6"
     >
       {/* Header */}
       <div className="flex justify-between items-start">
@@ -62,22 +63,19 @@ const StatusCard = ({
           </div>
         ) : (
           <div
-            className="flex items-center gap-2 
-            bg-white/60 px-3 py-1 rounded-[12px] shadow-sm"
+            className="flex flex-row justify-center items-center gap-2 
+            bg-white p-4 w-[100px] rounded-full "
           >
-            <Phone size={16} className="text-black" />
-            <p className="text-sm text-black">{phoneCount}</p>
+            <CornerLeftUp size={16} className="text-black" />
+            <p className="text-sm text-black">{voteCount}</p>
           </div>
         )}
 
-        {/* Expand Button */}
-        <button
-          className="flex items-center justify-center gap-2 
-          w-[137px] h-[40px] rounded-[49px] 
-          bg-black text-white text-sm hover:bg-gray-800"
-        >
-          Expand <ArrowRight size={14} />
-        </button>
+        <ActionButton
+        onClick={() => console.log("Action Clicked")}
+        action={"Expand"}
+        ifDisable={false}
+        ></ActionButton>
       </div>
     </div>
   );

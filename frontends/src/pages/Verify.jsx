@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { Bookmark } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useRef } from "react";
 import { useUpload } from "../context/UploadContext";
-import GuideLineBar from "../components/Action";
-import {createImageUploadPayload,uploadImagesToBackend,predictPotholes,checkAcceptance} from "../helper"; // Import the helper function
+import {GuideLineBar} from "../components/Action";
+import {createImageUploadPayload,uploadPostToBackend,predictPotholes,checkAcceptance} from "../helper"; // Import the helper function
 
 const Verify = () => {
   const [progress, setProgress] = useState(10);
@@ -13,9 +12,8 @@ const Verify = () => {
   const [status, setStatus] = useState("Waiting");
   const [barColor, setBarColor] = useState("bg-black");
   const [showResult, setShowResult] = useState(false);
-  const fileInputRef = useRef();
   const navigate = useNavigate();
-  const images  = useUpload();
+  const upload  = useUpload();
 
 
   const handlePost = async () => {
@@ -27,9 +25,9 @@ const Verify = () => {
     setShowResult(false);
     try {
       console.log("Uploading images...");
-      const payload = await createImageUploadPayload(images.images, "testuser");
+      const payload = await createImageUploadPayload(upload.images, "testuser",upload.stringLandmark,upload.location);
       console.log("Payload created..");
-      const postid_json = await uploadImagesToBackend(payload);
+      const postid_json = await uploadPostToBackend(payload);
       setProgress(50);
       setStatus("Validating");
       console.log("Post ID received");
@@ -60,28 +58,28 @@ const Verify = () => {
 const hasPostedRef = useRef(false);
 
 useEffect(() => {
-  if (!hasPostedRef.current && images.images.length > 0) {
+  if (!hasPostedRef.current && upload.images.length > 0) {
     handlePost();
     hasPostedRef.current = true;
-  } else if (!hasPostedRef.current && images.images.length === 0) {
+  } else if (!hasPostedRef.current && upload.images.length === 0) {
     navigate("/reportissue");
     hasPostedRef.current = true;
   }
-}, [images.images, navigate]);
+}, [upload.images, navigate]);
 
   return (
-    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-24 pb-10 min-h-screen bg-white">
+    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-10 pb-10 min-h-screen bg-white">
       {/* Left Section */}
       <div className="flex-1 pl-[86px]">
         <h2 className="text-[30px] font-medium mb-8 leading-[100%] text-black">
           Report A Pothole
         </h2>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex w-full lg:max-w-[800px] max-w-[200px] items-center justify-between mb-6">
           <p className="text-[18px] opacity-80">{status}</p>
           <Bookmark size={20} className="text-black" />
         </div>
         {/* Upload Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-7">
+        <div className="w-full lg:max-w-[800px] max-w-[200px bg-gray-200 rounded-full h-7">
           <div
             className={`${barColor} h-7 rounded-full transition-all duration-500`}
             style={{ width: `${progress}%` }}
@@ -109,9 +107,7 @@ useEffect(() => {
 
       </div>
       {/* Right Section */}
-      <GuideLineBar  actionButtonText={"Post"} buttonDisable={uploading}></GuideLineBar>
-
- 
+      <GuideLineBar  actionButtonText={"Post"} buttonDisable={uploading} onActionButtonClick={() => navigate("/postdetail")} />
     </div>
   );
 };

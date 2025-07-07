@@ -1,40 +1,62 @@
+import imageCompression from 'browser-image-compression';
 
 const AZURE_FUNCTION_KEY = process.env.REACT_APP_AZURE_FUNCTION_KEY; // Replace with your actual Azure Function key
 
-function readFileAsBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
 
-    reader.onload = () => {
-      const result = reader.result;
-      const base64 = result.split(',')[1]; // remove "data:image/jpeg;base64,..."
-      resolve(base64);
-    };
+async function compressAndConvertToBase64(file) {
+  if (!file) throw new Error("No file provided");
 
-    reader.onerror = (err) => reject(err);
-    reader.readAsDataURL(file); // trigger onload
-  });
-}
-async function createImageUploadPayload(selectedFiles, userID) {
-
-  const payload = {
-    userID,
+  const options = {
+    maxSizeMB: 0.8,
+    maxWidthOrHeight: 1024,
+    useWebWorker: true,
+    initialQuality: 0.8,
   };
 
-  for (let i = 0; i < 4; i++) {
-    const file = selectedFiles[i];
-    const base64Data = await readFileAsBase64(file);
+  const compressedFile = await imageCompression(file, options);
 
-    payload[`img${i + 1}`] = {
-      data: base64Data,
-      name: file.name
+  const reader = new FileReader();
+  return new Promise((resolve, reject) => {
+    reader.onload = () => {
+      const result = reader.result;
+      // remove the 'data:image/jpeg;base64,' prefix
+      const base64 = result.split(',')[1] || "";
+      resolve({ base64, name: file.name });
     };
+    reader.onerror = reject;
+    reader.readAsDataURL(compressedFile);
+  });
+}
+
+
+async function createImageUploadPayload(selectedFiles, userID, landmark, coordinates) {
+  if (!Array.isArray(selectedFiles) || selectedFiles.length < 4) {
+    throw new Error("Expected 4 image files");
   }
+
+  const compressedImages = await Promise.all(
+    selectedFiles.slice(0, 4).map((file) => compressAndConvertToBase64(file))
+  );
+
+  const payload = {
+    userID: userID ?? "unknown_user",
+    landmark: landmark ?? "Unknown",
+    coordinates: coordinates ?? "0,0",
+  };
+
+  compressedImages.forEach(({ base64, name }, i) => {
+    payload[`img${i + 1}`] = {
+      data: base64,  // ✅ exactly what Python backend expects
+      name: name
+    };
+  });
 
   return payload;
 }
 
-async function uploadImagesToBackend(payload) {
+
+
+async function uploadPostToBackend(payload) {
   const azureUrl = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/uploadpost?code=${AZURE_FUNCTION_KEY}`;
 
   try {
@@ -72,8 +94,8 @@ async function predictPotholes(postID) {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-
     return await response.json();
+
   } catch (error) {
     console.error('Error predicting potholes:', error);
     throw error;
@@ -100,7 +122,6 @@ function checkAcceptance(response) {
       }
     }
   }
-  console.log("Tags found:", tagsDict);
   // count the number of SVD and DMG tags
 
 
@@ -112,4 +133,4 @@ function checkAcceptance(response) {
   }
 }
 
-export { createImageUploadPayload, uploadImagesToBackend, predictPotholes,checkAcceptance };
+export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance };
