@@ -235,6 +235,57 @@ def fetch_post(req: func.HttpRequest) -> func.HttpResponse:
             }
         )
 
+@app.route(route="register", auth_level=func.AuthLevel.FUNCTION)
+def register_entity_http(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info(" Received registration request.")
+
+    
+    if req.method == "OPTIONS":
+        return func.HttpResponse(
+            "",
+            status_code=204,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
+        )
+
+    try:
+        data = req.get_json()
+
+        userName = data.get("userName")
+        userUsername = data.get("userUsername")
+        role = data.get("role")
+        address = data.get("address")
+
+       
+        if not all([userName, userUsername, role, address]):
+            return func.HttpResponse(
+                json.dumps({"success": False, "message": "Missing required fields."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+
+       
+        result = register_entity(userName, userUsername, role, address)
+
+        return func.HttpResponse(
+            json.dumps(result),
+            status_code=200 if result["success"] else 400,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
+
+    except Exception as e:
+        logging.error(f"Unexpected error during registration: {e}")
+        return func.HttpResponse(
+            json.dumps({"success": False, "message": f"Server Error: {str(e)}"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
 # @app.route(route="addRoadCondition", auth_level=func.AuthLevel.FUNCTION)
 # def addRoadCondition(req : func.HttpRequest) -> func.HttpResponse:
 #     logging.info('Trigger function triggered to add road condition.')
