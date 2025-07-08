@@ -144,25 +144,39 @@ async function connectWallet() {
   try {
     await window.ethereum.request({ method: "eth_requestAccounts" });
 
-    const provider = new BrowserProvider(window.ethereum); // ✅ v6 correct
-    const signer = await provider.getSigner();             // ✅ v6: await needed
+    const provider = new BrowserProvider(window.ethereum); 
+    const signer = await provider.getSigner();            
     const userAddress = await signer.getAddress();
 
     return { provider, signer, userAddress };
   } catch (err) {
     if (err.code === 4001) {
-      alert("❌ You rejected the MetaMask connection request.");
+      alert("You rejected the MetaMask connection request.");
     } else {
       console.error(err);
-      alert("⚠️ Error connecting to MetaMask: " + err.message);
+      alert("Error connecting to MetaMask: " + err.message);
     }
     return null;
   }
 }
 
 async function checkAlredyRegisted(address){
-  return false
+  return false;
 }
 
+async function registerNewUser(address, userName, userType, userUsername) {
+  // wait for 2 seconds to simulate a delay
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  return true;
+}
 
-export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted };
+async function checkUsername(username) {
+  // Simulate an API call to check if the username is available
+  // In a real application, you would replace this with an actual API call
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // For now, let's assume all usernames are available
+  return true;
+}
+
+export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted,registerNewUser,checkUsername };

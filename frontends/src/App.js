@@ -23,7 +23,7 @@ function App() {
 
   return (
     <div className="App">
-      {loginSuccesful ? <MainBrowser /> : <MainLogin />}
+      {true ? <MainBrowser /> : <MainLogin />}
     </div>
   );
 }
