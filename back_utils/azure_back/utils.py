@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from azure.data.tables import TableServiceClient
 from azure.storage.blob import BlobServiceClient
 from datetime import datetime, timezone
+from collections import defaultdict
 # from report.dynamic_info import get_road_traffic_analysis, parse_weather_forcast
 # from report.static_info import get_street_name_and_address, get_soil_properties, get_population_density_from_tif
 # from report.openai_inference import OpenAIChat
@@ -11,6 +12,9 @@ import base64
 import logging
 import io
 import os
+from dotenv import load_dotenv
+
+
 
 
 load_dotenv()
@@ -197,6 +201,53 @@ def fetch_post(post_id):
     except Exception as e:
         logging.error(f"Failed to fetch metadata for '{post_id}': {e}")
         return None
+    
+def fetch_all_posts():
+    """
+    Fetch all posts from Azure Table Storage and return structured JSON.
+    Each post includes metadata and associated image info.
+    """
+
+    try:
+        
+        connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+        table_service_client = TableServiceClient.from_connection_string(connection_string)
+        table_client = table_service_client.get_table_client("posts")
+        grouped = defaultdict(lambda: {"image": {}})
+        for entity in table_client.list_entities():
+            pk = entity["PartitionKey"]
+            rk = entity["RowKey"]
+            if pk.startswith("post_"):
+                try:
+                    _, username, post_id = pk.split("_", 2)
+                except ValueError:
+                    continue  
+            else:
+                continue
+            grouped[pk]["username"] = username
+            grouped[pk]["post_id"] = post_id
+
+            if rk == "metadata":
+                grouped[pk]["coordinates"] = entity.get("coordinates", "")
+                grouped[pk]["landmark"] = entity.get("landmark", "")
+                grouped[pk]["uploaded_at"] = entity.get("uploaded_at", "1970-01-01T00:00:00")
+                grouped[pk]["road_condition"] = entity.get("post_condition", "")
+            elif rk in ["front", "back", "left", "right"]:
+                grouped[pk]["image"][rk] = {
+                    "image_id": entity.get("image_id", ""),
+                    "uploaded_at": entity.get("uploaded_at", "")
+                }
+            elif rk == "static_metadata":
+                grouped[pk]["static_metadata"] = entity.get("static_metadata", {})
+        post_list = list(grouped.values())
+        post_list.sort(
+            key=lambda post: datetime.fromisoformat(post.get("uploaded_at").replace("Z", "+00:00")),
+            reverse=True
+        )
+        return post_list
+    except Exception as e:
+        logging.error(f"Error fetching posts: {e}")
+        return {"error": str(e)}
 
 # def build_static_metadata(lat, lon,length, road_width,
 #                            maintenance_history,road_surface, 

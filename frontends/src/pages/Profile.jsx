@@ -1,5 +1,6 @@
 import { Bookmark, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import StatusCard from "../components/StatusCard";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -41,74 +42,25 @@ const Profile = () => {
       </div>
 
       {/* Cards */}
-      <div style={{ position: 'relative', minHeight: '300px', marginTop: '40px' }}>
-        {[1, 2].map((item, idx) => (
-          <div
-            key={item}
-            className="rounded-[49px] bg-gray-100 px-6 py-5 space-y-4"
-            style={{
-              width: 298,
-              height: 266,
-              position: 'absolute',
-              top: 0,
-              left: idx === 0 ? 0 : 330,
-              opacity: 1,
-              borderRadius: 49,
-              boxShadow: '0 1px 4px rgba(19, 18, 18, 0.04)',
-              background: '#f3f4f6', // Tailwind's gray-100
-              zIndex: 1,
-              color: '#fff',
-            }}
-          >
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-                  alt="user"
-                  className="w-9 h-9 rounded-full"
-                />
-                <div>
-                  <p className="text-sm text-black font-medium">ari_archit_</p>
-                  <p className="text-xs text-gray-500">2 days ago</p>
-                </div>
-              </div>
-              <Bookmark size={18} className="text-gray-700 cursor-pointer" />
-            </div>
-            <p className="text-sm text-gray-700 leading-tight">
-              48, Thakurpukur, Bibirhat - Bakrahat - Raipur Rd
-            </p>
-            <div>
-              {item === 1 ? (
-                <p className="text-xs text-red-500 font-medium">Awaiting Approval</p>
-              ) : (
-                <>
-                  <p className="text-xs text-green-600 font-medium">Approved</p>
-                  <p className="text-xs text-yellow-500 font-medium">On Bid</p>
-                </>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              {item === 1 ? (
-                <p className="text-black font-semibold">📞 56</p>
-              ) : (
-
-            <>
-              <div className="w-6 h-6 bg-[#D9D9D9]/50 rounded-full flex items-center justify-center">
-                <div className="w-2 h-2 bg-black rounded-full"></div>
-              </div>
-              <p className="text-black font-semibold">₹1.50 Cr</p>
-            </>
-              )}
-              <button
-                className="flex items-center justify-center gap-6 
-                w-[137px] h-[40px] rounded-[49px] 
-                bg-black text-white text-sm hover:bg-gray-800"
-              >
-                Expand <ArrowRight size={14} />
-              </button>
-            </div>
-          </div>
-        ))}
+      <div style={{ position: 'relative', minHeight: '300px', marginTop: '40px', display: 'flex', gap: '32px' }}>
+        
+        <StatusCard 
+          username={"ari_archit_"} 
+          time={"2 days ago"} 
+          address={"48, Thakurpukur, Bibirhat - Bakhrahat - Raipur Rd"}
+          status={"Awaiting Approval"}
+          bidStatus={""}
+          voteCount={56}
+          price={""}
+        />
+        <StatusCard
+          username="ari_archit_"
+          time="2 days ago"
+          address="48, Thakurpukur, Bibirhat - Bakrahat - Raipur Rd"
+          status="Approved"
+          bidStatus="On Bid"
+          price={1.5}
+        />
       </div>
     </div>
   );

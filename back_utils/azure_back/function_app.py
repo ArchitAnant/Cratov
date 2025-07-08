@@ -6,6 +6,8 @@ from utils import * #get_image_from_blob,fetch_images,generate_post_id,upload_im
 import os
 import ast
 
+
+
 app = func.FunctionApp()
 model = ModelWrapper()
 
@@ -193,7 +195,46 @@ def upload_post(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json",
                 headers={"Access-Control-Allow-Origin": "*"}
             )
-    
+@app.route(route="fetch_post", auth_level=func.AuthLevel.FUNCTION)
+def fetch_post(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('🔄 Processing fetch_post request.')
+
+    try:
+        # ✅ CORS Preflight Handling (for frontend)
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
+
+        # ✅ Fetch posts
+        posts = fetch_all_posts()
+
+        return func.HttpResponse(
+            json.dumps(posts, indent=2),
+            status_code=200,
+            mimetype="application/json",
+            headers={
+                "Access-Control-Allow-Origin": "*"
+            }
+        )
+
+    except Exception as e:
+        logging.error(f"❌ Internal Server Error: {e}")
+        return func.HttpResponse(
+            json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={
+                "Access-Control-Allow-Origin": "*"
+            }
+        )
+
 # @app.route(route="addRoadCondition", auth_level=func.AuthLevel.FUNCTION)
 # def addRoadCondition(req : func.HttpRequest) -> func.HttpResponse:
 #     logging.info('Trigger function triggered to add road condition.')
@@ -478,3 +519,4 @@ def upload_post(req: func.HttpRequest) -> func.HttpResponse:
             mimetype="application/json",
             headers={"Access-Control-Allow-Origin": "*"}
         )
+

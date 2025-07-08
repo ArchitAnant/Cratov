@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { useUpload } from "../context/UploadContext";
 import {GuideLineBar} from "../components/Action";
 import {createImageUploadPayload,uploadPostToBackend,predictPotholes,checkAcceptance} from "../helper"; // Import the helper function
+import { savePostData, fileToBase64 } from "../context/post";
 
 const Verify = () => {
   const [progress, setProgress] = useState(10);
@@ -52,6 +53,16 @@ const Verify = () => {
       setUploading(false);
       setShowResult(true);
     }
+  };
+
+  const handlePostButton = async () => {
+    // Convert images to base64
+    const base64Images = await Promise.all(upload.images.map(img => img ? fileToBase64(img) : ""));
+    savePostData({
+      address: upload.stringLandmark,
+      images: base64Images
+    });
+    navigate("/postdetail");
   };
 
   // call the handlePost function when the page loads
@@ -107,7 +118,7 @@ useEffect(() => {
 
       </div>
       {/* Right Section */}
-      <GuideLineBar  actionButtonText={"Post"} buttonDisable={uploading} onActionButtonClick={() => navigate("/postdetail")} />
+      <GuideLineBar actionButtonText={"Post"} buttonDisable={uploading} onActionButtonClick={handlePostButton} />
     </div>
   );
 };
