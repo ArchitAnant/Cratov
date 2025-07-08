@@ -195,12 +195,13 @@ def upload_post(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json",
                 headers={"Access-Control-Allow-Origin": "*"}
             )
+    
+    
 @app.route(route="fetch_post", auth_level=func.AuthLevel.FUNCTION)
 def fetch_post(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('🔄 Processing fetch_post request.')
+    logging.info('Processing fetch_post request.')
 
     try:
-        # ✅ CORS Preflight Handling (for frontend)
         if req.method == "OPTIONS":
             return func.HttpResponse(
                 "",
@@ -212,7 +213,6 @@ def fetch_post(req: func.HttpRequest) -> func.HttpResponse:
                 },
             )
 
-        # ✅ Fetch posts
         posts = fetch_all_posts()
 
         return func.HttpResponse(
@@ -225,7 +225,7 @@ def fetch_post(req: func.HttpRequest) -> func.HttpResponse:
         )
 
     except Exception as e:
-        logging.error(f"❌ Internal Server Error: {e}")
+        logging.error(f"Internal Server Error: {e}")
         return func.HttpResponse(
             json.dumps({"error": f"Internal Server Error: {str(e)}"}),
             status_code=500,
