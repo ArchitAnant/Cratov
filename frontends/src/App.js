@@ -14,30 +14,41 @@ import Profile from "./pages/Profile";
 import TopBar from "./components/TopBar";
 import AgencyProfile from "./pages/Agency-profile";
 import Footer from "./components/Footer";
+import MainLogin from "./pages/Login";
+import { useLogin } from "./context/LoginContext";
 
 function App() {
+  const { loginSuccesful } = useLogin();
+
+
   return (
-    <>
-      <BrowserRouter>
-        <TopBar />
-        <Routes>
-          <Route path="/home" element={<Home />} />
-          <Route path="/" element={<Home />} /> {/* Default route now opens Home */}
-          <Route path="/reportissue" element={<ReportIssue />} /> {/* Add explicit route for ReportIssue */}
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/postdetail" element={<PostDetail />} />
-          <Route path="/bidding" element={<BiddingDetail />} />
-          <Route path="/progress/:id" element={<ProjectProgress />} />
-          <Route path="/funded" element={<FundedDetail />} />
-          <Route path="/rate-construction" element={<ConstructionRating />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} /> {/* ✅ New Route */}
-          <Route path="/agency-profile" element={<AgencyProfile />} />
-        </Routes>
-        <Footer />
-      </BrowserRouter>
-    </>
+    <div className="App">
+      {loginSuccesful ? <MainBrowser /> : <MainLogin />}
+    </div>
   );
 }
+
+const MainBrowser = () => {
+  return (
+    <BrowserRouter>
+      <TopBar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/reportissue" element={<ReportIssue />} />
+        <Route path="/verify" element={<Verify />} />
+        <Route path="/postdetail" element={<PostDetail />} />
+        <Route path="/bidding" element={<BiddingDetail />} />
+        <Route path="/progress/:id" element={<ProjectProgress />} />
+        <Route path="/funded" element={<FundedDetail />} />
+        <Route path="/rate-construction" element={<ConstructionRating />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/agency-profile" element={<AgencyProfile />} />
+      </Routes>
+      <Footer />
+    </BrowserRouter>
+  );
+};
 
 export default App;

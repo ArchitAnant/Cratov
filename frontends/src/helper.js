@@ -1,4 +1,5 @@
 import imageCompression from 'browser-image-compression';
+import { BrowserProvider } from "ethers";
 
 const AZURE_FUNCTION_KEY = process.env.REACT_APP_AZURE_FUNCTION_KEY; // Replace with your actual Azure Function key
 
@@ -133,4 +134,35 @@ function checkAcceptance(response) {
   }
 }
 
-export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance };
+
+async function connectWallet() {
+  if (!window.ethereum) {
+    alert("MetaMask is not installed. Please install it to continue.");
+    return null;
+  }
+
+  try {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+
+    const provider = new BrowserProvider(window.ethereum); // ✅ v6 correct
+    const signer = await provider.getSigner();             // ✅ v6: await needed
+    const userAddress = await signer.getAddress();
+
+    return { provider, signer, userAddress };
+  } catch (err) {
+    if (err.code === 4001) {
+      alert("❌ You rejected the MetaMask connection request.");
+    } else {
+      console.error(err);
+      alert("⚠️ Error connecting to MetaMask: " + err.message);
+    }
+    return null;
+  }
+}
+
+async function checkAlredyRegisted(address){
+  return false
+}
+
+
+export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted };
