@@ -13,6 +13,7 @@ import logging
 import io
 import os
 from dotenv import load_dotenv
+from azure.core.exceptions import ResourceExistsError, HttpResponseError
 
 
 
@@ -248,7 +249,65 @@ def fetch_all_posts():
     except Exception as e:
         logging.error(f"Error fetching posts: {e}")
         return {"error": str(e)}
+def register_entity(userName, userUsername, role, address):
+    """
+    Registers a user, agency, or contractor into Azure Table Storage.
+    
+    :param userName: Full name of the user/agency/contractor
+    :param userUsername: Unique username
+    :param role: One of ['User', 'Agency', 'Contractor']
+    :param address: Wallet address
+    :return: dict (registration result)
+    """
 
+    if role not in ["User", "Agency", "Contractor"]:
+        return {"success": False, "message": "Invalid role specified."}
+
+   
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    if not connection_string:
+        return {"success": False, "message": "Azure connection string is missing."}
+    
+    try:
+        table_service = TableServiceClient.from_connection_string(connection_string)
+        table_name = role.lower() + "s" 
+        table_client = table_service.get_table_client(table_name)
+    except Exception as e:
+        return {"success": False, "message": f"Error initializing Azure Table service: {str(e)}"}
+
+    
+    address_field = f"{role.lower()}Address"
+    name_field = f"{role.lower()}Name"
+    username_field = f"{role.lower()}Username"
+
+    entity = {
+        "PartitionKey": role,
+        "RowKey": userUsername,
+        address_field: address,
+        name_field: userName,
+        username_field: userUsername
+    }
+
+    
+    try:
+        duplicates = list(table_client.query_entities(
+            query_filter=f"PartitionKey eq '{role}' and {address_field} eq '{address}'"
+        ))
+        if duplicates:
+            return {"success": False, "message": f"{role} with this address already exists."}
+    except Exception as e:
+        return {"success": False, "message": f"Error querying Azure Table: {str(e)}"}
+
+    
+    try:
+        table_client.create_entity(entity=entity)
+        return {"success": True, "message": f"{role} '{userUsername}' registered successfully."}
+    except ResourceExistsError:
+        return {"success": False, "message": "Username already exists. Choose another."}
+    except HttpResponseError as e:
+        return {"success": False, "message": f"Azure Table error: {str(e)}"}
+    except Exception as e:
+        return {"success": False, "message": f"Unexpected error: {str(e)}"}
 # def build_static_metadata(lat, lon,length, road_width,
 #                            maintenance_history,road_surface, 
 #                            road_geometry, road_safety_features,
