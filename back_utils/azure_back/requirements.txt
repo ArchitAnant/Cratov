@@ -1,0 +1,10 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+Pillow
+python-dotenv
+torch
+torchvision
+torchaudio
+azure-functions
+azure-data-tables
+azure-storage-blob
