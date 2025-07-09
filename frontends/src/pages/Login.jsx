@@ -1,4 +1,4 @@
-import {connectWallet,checkAlredyRegisted,registerNewUser,checkUsername} from "../helper";
+import {connectWallet,checkAlredyRegisted,registerNewUser} from "../helper";
 import { useState } from "react";
 import {DoorClosed,BrickWall,UserRound,ArrowRight} from "lucide-react"
 import { useLogin } from "../context/LoginContext";
@@ -16,9 +16,20 @@ const MainLogin = () => {
         registerNewUser(userAddress, userName, userType, userUsername).then((res) => {
             if (res) {
                 console.log("User registered successfully");
+                setLoading(false);
                 setLoginState(true);
+                setUserAddress(null);
+                setUserType(null);
+                setUserName(null);
+                setUserUsername(null);
             } else {
                 console.error("Error registering user");
+                setLoading(false);
+                setScreenCount(0);
+                setUserAddress(null);
+                setUserType(null);
+                setUserName(null);
+                setUserUsername(null);
             }
         }).catch((err) => {
             console.error("Error registering user:", err);
@@ -58,6 +69,7 @@ const MainLogin = () => {
                         console.log("User is already registered");  
                     }
                     else {
+                        console.log("User is not registered");
                         setScreenCount(1);
                     }
                 });
@@ -91,27 +103,16 @@ const MainLogin = () => {
                     return;
                 }
                 setLoading(true);
-                checkUsername(userUsername.trim()).then((isAvailable) => {
-                    if (!isAvailable) {
-                        alert("Username is already taken. Please choose a different username.");
-                        setLoading(false);
-                        return;
-                    }
-                    else{
-                        setUserName(userUsername.trim());
-                        handleRegister();
-                        setScreenCount(4);
-                        console.log("userAddress", userAddress);
-                        console.log("userType", userType);
-                        console.log("userName", userName);
-                        console.log("userUsername", userUsername);
-                        setLoading(false);
-                    }
-                }).catch((err) => {
-                    console.error("Error checking username:", err);
-                    alert("Error checking username. Please try again later.");
-                    return;
-                });
+                setUserName(userUsername.trim());
+                handleRegister();
+                
+                setScreenCount(4);
+                console.log("userAddress", userAddress);
+                console.log("userType", userType);
+                console.log("userName", userName);
+                console.log("userUsername", userUsername);
+
+
                 
                 
             }} className={`flex flex-row items-center justify-center py-4 px-7 rounded-full ml-10 ${loading ? "opacity-50 pointer-events-none" : "hover:opacity-[0.5]"} transition-all duration-300 cursor-pointer`}>

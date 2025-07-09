@@ -5,7 +5,7 @@ import { useLogin } from "../context/LoginContext";
 const TopBar = () => {
   const spacerRef = useRef();
   const [hasShadow, setHasShadow] = useState(false);
-  const { setLoginState } = useLogin();
+  const { userAddress, setUserAddress, userType, setUserType, userName,setUserName,userUsername, setUserUsername,loginSuccesful,setLoginState} = useLogin();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -53,7 +53,17 @@ const TopBar = () => {
               Profile
             </Link>
             <button
-              onClick={() => setLoginState(false)}
+              onClick={() => {
+                setLoginState(false);
+                setUserAddress(null);
+                setUserType(null);
+                setUserName(null);
+                setUserUsername(null);
+                localStorage.removeItem("userAddress");
+                localStorage.removeItem("userType");
+                localStorage.removeItem("userName");  
+                localStorage.removeItem("userUsername");
+              }}
               className="text-[12px] font-regular text-red-600 hover:text-red-800 transition-colors duration-200"
             >
               Logout

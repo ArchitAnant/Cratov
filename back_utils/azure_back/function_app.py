@@ -254,10 +254,11 @@ def register_entity_http(req: func.HttpRequest) -> func.HttpResponse:
     try:
         data = req.get_json()
 
-        userName = data.get("userName")
-        userUsername = data.get("userUsername")
-        role = data.get("role")
-        address = data.get("address")
+
+        userName = data.get("userName").strip()
+        userUsername = data.get("userUsername").strip()
+        role = data.get("role").strip()
+        address = data.get("address").strip()
 
        
         if not all([userName, userUsername, role, address]):
@@ -273,7 +274,7 @@ def register_entity_http(req: func.HttpRequest) -> func.HttpResponse:
 
         return func.HttpResponse(
             json.dumps(result),
-            status_code=200 if result["success"] else 400,
+            status_code=200 ,
             mimetype="application/json",
             headers={"Access-Control-Allow-Origin": "*"}
         )
@@ -286,6 +287,62 @@ def register_entity_http(req: func.HttpRequest) -> func.HttpResponse:
             mimetype="application/json",
             headers={"Access-Control-Allow-Origin": "*"}
         )
+    
+@app.route(route="checkRegister", auth_level=func.AuthLevel.FUNCTION)
+def check_registered_user(req: func.HttpRequest) -> func.HttpResponse:
+    try:
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
+        address = req.params.get('address')
+
+        if not address:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. 'address' field is required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        
+        if checkAddressInUsers(address) or checkAddressInAgency(address) or checkAddressInContractor(address):
+            return func.HttpResponse(
+                json.dumps({"registered": True}),
+                status_code=200,
+                mimetype="application/json",
+                headers={
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
+        else:
+            return func.HttpResponse(
+                json.dumps({"registered": False}),
+                status_code=200,
+                mimetype="application/json",
+                headers={
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
+        
+
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={
+                "Access-Control-Allow-Origin": "*"
+            }
+        )
+
+
+
 # @app.route(route="addRoadCondition", auth_level=func.AuthLevel.FUNCTION)
 # def addRoadCondition(req : func.HttpRequest) -> func.HttpResponse:
 #     logging.info('Trigger function triggered to add road condition.')

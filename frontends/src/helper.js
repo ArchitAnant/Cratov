@@ -161,22 +161,83 @@ async function connectWallet() {
 }
 
 async function checkAlredyRegisted(address){
-  return false;
+  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/checkregister?address=${address}&code=${AZURE_FUNCTION_KEY}`;
+
+  try{
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.registered; // Assuming the API returns { isRegistered: true/false }
+  }
+  catch (error) {
+    console.error('Error checking registration:', error);
+    throw error;
+  }
 }
 
 async function registerNewUser(address, userName, userType, userUsername) {
   // wait for 2 seconds to simulate a delay
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  return true;
+  const payload = {
+    address: address,
+    userName: userName,
+    role: userType,
+    userUsername: userUsername
+  };
+
+  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/register?code=${AZURE_FUNCTION_KEY}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const resp = await response.json();
+
+    if (resp.success) {
+      console.log("User registered successfully:", resp);
+      return true; 
+    }
+    else {
+      var errorMessage = resp.message || "Unknown error occurred";
+
+      if (errorMessage === "DUP_REG"){
+        alert("Username already exists. Please choose a different username.");
+        // errorMessage = "Username already exists. Please choose a different username.";
+      }
+      else if (errorMessage === "INV_ROLE"){
+        alert("Invalid user type. Please select either a valid role.");
+        // errorMessage = "Invalid user type. Please select either a valid role.";
+      }
+      else{
+        alert("An error occurred while registering the user. Please try again later.");
+        // errorMessage = "An error occurred while registering the user. Please try again later.";
+      }
+      console.error("User registration failed:", resp);
+      return false;
+    }
+     // Assuming the API returns { success: true/false }
+  } catch (error) {
+    console.error('Error registering user:', error);
+    throw error;
+  }
 }
 
-async function checkUsername(username) {
-  // Simulate an API call to check if the username is available
-  // In a real application, you would replace this with an actual API call
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // For now, let's assume all usernames are available
-  return true;
-}
 
-export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted,registerNewUser,checkUsername };
+export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted,registerNewUser };

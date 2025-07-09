@@ -249,6 +249,7 @@ def fetch_all_posts():
     except Exception as e:
         logging.error(f"Error fetching posts: {e}")
         return {"error": str(e)}
+    
 def register_entity(userName, userUsername, role, address):
     """
     Registers a user, agency, or contractor into Azure Table Storage.
@@ -260,8 +261,8 @@ def register_entity(userName, userUsername, role, address):
     :return: dict (registration result)
     """
 
-    if role not in ["User", "Agency", "Contractor"]:
-        return {"success": False, "message": "Invalid role specified."}
+    if role.lower() not in ["user", "agency", "contractor"]:
+        return {"success": False, "message": "INV_ROLE"}
 
    
     connection_string = os.getenv("STORAGE_CONNECTION_STRING")
@@ -270,7 +271,7 @@ def register_entity(userName, userUsername, role, address):
     
     try:
         table_service = TableServiceClient.from_connection_string(connection_string)
-        table_name = role.lower() + "s" 
+        table_name = "users" if role.lower() == "user" else "agencies" if role.lower() == "agency" else "contractors"
         table_client = table_service.get_table_client(table_name)
     except Exception as e:
         return {"success": False, "message": f"Error initializing Azure Table service: {str(e)}"}
@@ -291,10 +292,10 @@ def register_entity(userName, userUsername, role, address):
     
     try:
         duplicates = list(table_client.query_entities(
-            query_filter=f"PartitionKey eq '{role}' and {address_field} eq '{address}'"
+            query_filter=f"RowKey eq '{userUsername}'"
         ))
         if duplicates:
-            return {"success": False, "message": f"{role} with this address already exists."}
+            return {"success": False, "message": f"DUP_REG"}
     except Exception as e:
         return {"success": False, "message": f"Error querying Azure Table: {str(e)}"}
 
@@ -303,11 +304,80 @@ def register_entity(userName, userUsername, role, address):
         table_client.create_entity(entity=entity)
         return {"success": True, "message": f"{role} '{userUsername}' registered successfully."}
     except ResourceExistsError:
-        return {"success": False, "message": "Username already exists. Choose another."}
+        return {"success": False, "message": "DUP_USER"}
     except HttpResponseError as e:
         return {"success": False, "message": f"Azure Table error: {str(e)}"}
     except Exception as e:
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
+    
+
+def checkAddressInUsers(username):
+    """
+    Check if the address is already registered in the Users table.
+    :param username: The username to check
+    :return: dict (check result)
+        """
+    
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service = TableServiceClient.from_connection_string(connection_string)
+    table_client = table_service.get_table_client("users")
+
+    try:
+        entities = list(table_client.query_entities(f"userAddress eq '{username}'"))
+        if entities:
+            logging.log(logging.INFO, f"Address for username '{username}' already exists in Users table.")
+            return True
+        else:
+            return False
+    except Exception as e:
+        logging.log(logging.ERROR, f"Error checking address in Users table: {str(e)}")
+        return False
+
+def checkAddressInAgency(username):
+    """
+    Check if the address is already registered in the Agency table.
+    
+    :param username: The username to check
+    :return: dict (check result)
+    """
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service = TableServiceClient.from_connection_string(connection_string)
+    table_client = table_service.get_table_client("agencies")
+
+    try:
+        entities = list(table_client.query_entities(f"agencyAddress eq '{username}'"))
+        if entities:
+            logging.log(logging.INFO, f"Address for username '{username}' already exists in Agency table.")
+            return True
+        else:
+            return False
+    except Exception as e:
+        logging.log(logging.ERROR, f"Error checking address in Agency table: {str(e)}")
+        return False
+
+def checkAddressInContractor(username):
+    """
+    Check if the address is already registered in the Contractor table.
+    
+    :param username: The username to check
+    :return: dict (check result)
+    """
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service = TableServiceClient.from_connection_string(connection_string)
+    table_client = table_service.get_table_client("contractors")
+
+    try:
+        entities = list(table_client.query_entities(f"contractorAddress eq '{username}'"))
+        if entities:
+            logging.log(logging.INFO, f"Address for username '{username}' already exists in Contractor table.")
+            return True
+        else:
+            return False
+    except Exception as e:
+        logging.log(logging.ERROR, f"Error checking address in Contractor table: {str(e)}")
+        return False
+
+
 # def build_static_metadata(lat, lon,length, road_width,
 #                            maintenance_history,road_surface, 
 #                            road_geometry, road_safety_features,
