@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { useUpload } from "../context/UploadContext";
 import { useLogin } from "../context/LoginContext";
 import {GuideLineBar} from "../components/Action";
-import {createImageUploadPayload,uploadPostToBackend,predictPotholes,checkAcceptance} from "../helper"; // Import the helper function
+import {createImageUploadPayload,uploadPostToBackend,predictPotholes,checkAcceptance,addRoadCondition} from "../helper"; // Import the helper function
 import { savePostData, fileToBase64 } from "../context/post";
 import VerificationStatusCard from "../components/VerificationStatusCard";
 
@@ -17,7 +17,7 @@ const Verify = () => {
   const navigate = useNavigate();
   const locationState = useLocation();
   const upload  = useUpload();
-  const { userType } = useLogin();
+  const { userName,userType } = useLogin();
 
   // Check navigation state first, then fallback to LoginContext
   // Also check if we came from agency flow
@@ -42,7 +42,7 @@ const Verify = () => {
     setShowResult(false);
     try {
       console.log("Uploading images...");
-      const payload = await createImageUploadPayload(upload.images, "testuser",upload.stringLandmark,upload.location);
+      const payload = await createImageUploadPayload(upload.images, userName,upload.stringLandmark,upload.location);
       console.log("Payload created..");
       const postid_json = await uploadPostToBackend(payload);
       setProgress(50);
@@ -55,7 +55,11 @@ const Verify = () => {
       setProgress(100);
       setShowResult(true);
       setUploading(false);
-      if (value === 1) {
+      if (value[0] === 1) {
+        console.log("value[1] is: ", value[1]);
+        console.log("Post ID is: ", post_id);
+        upload.setRoadCondition(value[1]);
+        addRoadCondition(post_id, value[1]);
         setStatus("Accepted");
         setBarColor("bg-[#2D6100]");
       } else {
