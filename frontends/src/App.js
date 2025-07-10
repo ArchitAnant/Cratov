@@ -12,7 +12,7 @@ import ConstructionRating from "./pages/ConstructionRating";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import TopBar from "./components/TopBar";
-import AgencyProfile from "./pages/Agency-profile";
+// import AgencyProfile from "./pages/Agency-profile";
 import AgencyApproval from "./pages/AgencyApproval";
 import Footer from "./components/Footer";
 import MainLogin from "./pages/Login";
@@ -45,7 +45,7 @@ const MainBrowser = () => {
         <Route path="/rate-construction" element={<ConstructionRating />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/agency-profile" element={<AgencyProfile />} />
+        {/* <Route path="/agency-profile" element={<AgencyProfile />} /> */}
         <Route path="/agency-approval" element={<AgencyApproval />} />
       </Routes>
       <Footer />

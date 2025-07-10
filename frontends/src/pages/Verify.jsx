@@ -74,11 +74,13 @@ const Verify = () => {
   const handlePostButton = async () => {
     // Convert images to base64
     const base64Images = await Promise.all(upload.images.map(img => img ? fileToBase64(img) : ""));
-    savePostData({
-      address: upload.stringLandmark,
-      images: base64Images,
-      userType: currentUserType
-    });
+    // savePostData({
+    //   address: upload.stringLandmark,
+    //   images: base64Images,
+    //   userType: currentUserType
+    // });
+    upload.setImages([null,null,null,null])
+
     navigate("/postdetail", { state: { userType: currentUserType } });
   };
 

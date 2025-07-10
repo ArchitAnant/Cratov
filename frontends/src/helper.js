@@ -271,5 +271,12 @@ async function getUserDetails(address,userType) {
   
 }
 
+async function getPostList(){
+  //  return List<Posts>
+  
+}
+
+
+
 
 export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails };

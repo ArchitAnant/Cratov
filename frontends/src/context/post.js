@@ -18,3 +18,12 @@ export function fileToBase64(file) {
     reader.readAsDataURL(file);
   });
 }
+
+
+// Small post Data class
+
+
+
+
+//  Big post Data Class
+
