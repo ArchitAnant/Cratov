@@ -220,7 +220,7 @@ def upload_post(req: func.HttpRequest) -> func.HttpResponse:
     
     
 @app.route(route="fetch_post", auth_level=func.AuthLevel.FUNCTION)
-def fetch_post(req: func.HttpRequest) -> func.HttpResponse:
+def fetch_posts(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Processing fetch_post request.')
 
     try:
@@ -439,121 +439,118 @@ def get_user_details(req: func.HttpRequest) -> func.HttpResponse:
 
 
 
-# @app.route(route="addRoadCondition", auth_level=func.AuthLevel.FUNCTION)
-# def addRoadCondition(req : func.HttpRequest) -> func.HttpResponse:
-#     logging.info('Trigger function triggered to add road condition.')
-#     try:
-#         if req.method == "OPTIONS":
-#             return func.HttpResponse(
-#                 "",
-#                 status_code=204,
-#                 headers={
-#                     "Access-Control-Allow-Origin": "*",
-#                     "Access-Control-Allow-Methods": "POST, OPTIONS",
-#                     "Access-Control-Allow-Headers": "Content-Type",
-#                 },
-#             )
-        
-#         resp_json = req.get_json()
-#         if not resp_json:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Invalid request. JSON body is required."}),
-#                 status_code=400,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
-        
-#         post_id = resp_json.get("postID")
-#         road_condition = resp_json.get("roadCondition")
+@app.route(route="addRoadCondition", auth_level=func.AuthLevel.FUNCTION)
+def addRoadCondition(req : func.HttpRequest) -> func.HttpResponse:
+    logging.info('Trigger function triggered to add road condition.')
+    try:
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
 
-#         if not post_id or not road_condition:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Invalid request. 'postID' and 'roadCondition' fields are required."}),
-#                 status_code=400,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
-
-#         if add_road_condition(post_id, road_condition):
-#             return func.HttpResponse(
-#                 json.dumps({"message": "Road condition updated successfully."}),
-#                 status_code=200,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
-#         else:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Failed to update road condition."}),
-#                 status_code=500,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
+        resp_json = req.get_json()
+        if not resp_json:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. JSON body is required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        post_id = resp_json.get("postID")
+        road_condition = resp_json.get("roadCondition")
+        logging.info(f"Received post_id: {post_id} and road_condition: {road_condition}")
+        if not post_id or not road_condition:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. 'postID' and 'roadCondition' fields are required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        if add_road_condition(post_id, road_condition):
+            return func.HttpResponse(
+                json.dumps({"message": "Road condition updated successfully."}),
+                status_code=200,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        else:
+            return func.HttpResponse(
+                json.dumps({"error": "Failed to update road condition."}),
+                status_code=500,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
     
-#     except Exception as e:
-#         return func.HttpResponse(
-#             json.dumps({"error": f"Internal Server Error: {str(e)}"}),
-#             status_code=500,
-#             mimetype="application/json",
-#             headers={"Access-Control-Allow-Origin": "*"}
-#         )
-    
-# @app.route(route="updatePostCondition", auth_level=func.AuthLevel.FUNCTION)
-# def updatePostCondition(req: func.HttpRequest) -> func.HttpResponse:
-#     logging.info('Trigger function triggered to update post condition.')
-#     try:
-#         if req.method == "OPTIONS":
-#             return func.HttpResponse(
-#                 "",
-#                 status_code=204,
-#                 headers={
-#                     "Access-Control-Allow-Origin": "*",
-#                     "Access-Control-Allow-Methods": "POST, OPTIONS",
-#                     "Access-Control-Allow-Headers": "Content-Type",
-#                 },
-#             )
+@app.route(route="updatePostCondition", auth_level=func.AuthLevel.FUNCTION)
+def updatePostCondition(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Trigger function triggered to update post condition.')
+    try:
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
         
-#         resp_json = req.get_json()
-#         if not resp_json:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Invalid request. JSON body is required."}),
-#                 status_code=400,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
+        resp_json = req.get_json()
+        if not resp_json:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. JSON body is required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
         
-#         post_id = resp_json.get("postID")
-#         condition = resp_json.get("condition")
+        post_id = resp_json.get("postID")
+        condition = resp_json.get("condition")
 
-#         if not post_id or not condition:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Invalid request. 'postID' and 'condition' fields are required."}),
-#                 status_code=400,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
+        if not post_id or not condition:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. 'postID' and 'condition' fields are required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
 
-#         if update_post_condition(post_id, condition):
-#             return func.HttpResponse(
-#                 json.dumps({"message": "Post condition updated successfully."}),
-#                 status_code=200,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
-#         else:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Failed to update post condition."}),
-#                 status_code=500,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
+        if update_post_condition(post_id, condition):
+            return func.HttpResponse(
+                json.dumps({"message": "Post condition updated successfully."}),
+                status_code=200,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        else:
+            return func.HttpResponse(
+                json.dumps({"error": "Failed to update post condition."}),
+                status_code=500,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
     
-#     except Exception as e:
-#         return func.HttpResponse(
-#             json.dumps({"error": f"Internal Server Error: {str(e)}"}),
-#             status_code=500,
-#             mimetype="application/json",
-#             headers={"Access-Control-Allow-Origin": "*"}
-#         )
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
     
 # @app.route(route="fetchPost", auth_level=func.AuthLevel.FUNCTION)
 # def fetchPost(req: func.HttpRequest) -> func.HttpResponse:
