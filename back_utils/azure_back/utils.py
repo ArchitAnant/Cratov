@@ -377,7 +377,45 @@ def checkAddressInContractor(username):
         logging.log(logging.ERROR, f"Error checking address in Contractor table: {str(e)}")
         return False
 
+def fetch_user_details(address, role):
+    """
+    Fetch user details from Azure Table Storage based on username and role.
+    
+    :param username: The username to fetch details for
+    :param role: One of ['User', 'Agency', 'Contractor']
+    :return: dict (user details)
+    """
+    
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service = TableServiceClient.from_connection_string(connection_string)
+    
+    if role.lower() == "user":
+        table_name = "users"
+    elif role.lower() == "agency":
+        table_name = "agencies"
+    elif role.lower() == "contractor":
+        table_name = "contractors"
+    else:
+        return {"success": False, "message": "Invalid role"}
 
+    table_client = table_service.get_table_client(table_name)
+    try:
+        entities = list(table_client.query_entities(f"{role.lower()}Address eq '{address}'"))
+        if not entities:
+            return {"success": False, "message": "User not found"}
+        
+        user_details = entities[0]
+        return {
+            "success": True,
+            "userName": user_details.get(f"{role.lower()}Name", ""),
+            "userUsername": user_details.get(f"{role.lower()}Username", ""),
+            "address": user_details.get(f"{role.lower()}Address", "")
+        }
+    except Exception as e:
+        logging.error(f"Error fetching user details for '{address}': {str(e)}")
+        return {"success": False, "message": f"Error fetching user details: {str(e)}"}
+
+    
 # def build_static_metadata(lat, lon,length, road_width,
 #                            maintenance_history,road_surface, 
 #                            road_geometry, road_safety_features,

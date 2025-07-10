@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLogin } from "../context/LoginContext";
+import {getUserDetails} from "../helper"; 
+import { useNavigate } from "react-router-dom";
 
 const TopBar = () => {
   const spacerRef = useRef();
   const [hasShadow, setHasShadow] = useState(false);
   const { userAddress, setUserAddress, userType, setUserType, userName,setUserName,userUsername, setUserUsername,loginSuccesful,setLoginState} = useLogin();
+  const naviagte = useNavigate();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -42,19 +45,37 @@ const TopBar = () => {
           <nav className="flex items-center gap-8">
             <Link
               to="/dashboard"
-              className="text-[12px] font-regular text-gray-700 hover:text-blue-600 transition-colors duration-200"
+              className="text-[11px] font-regular text-gray-700 hover:text-blue-600 transition-colors duration-200"
             >
-              Dashboard
+              
             </Link>
             <Link
               to="/profile"
-              className="text-[12px] font-regular text-gray-700 hover:text-blue-600 transition-colors duration-200"
+              className="text-[11px] font-regular text-gray-700 hover:text-blue-600 hover:opacity-80 transition-colors duration-200"
+              onClick={
+                () => {
+                  if (!userAddress) {
+                    alert("Please connect your wallet first.");
+                    return;
+                  }
+                  // Fetch user details when navigating to profile
+                  getUserDetails(userAddress,userType).then((data) => {
+                    if (data) {
+                      setUserName(data.userName);
+                      setUserUsername(data.userUsername);
+                    } else {
+                      console.error("Error fetching user details");
+                    }
+                  });
+                }
+              }
             >
-              Profile
+              PROFILE
             </Link>
             <button
               onClick={() => {
                 setLoginState(false);
+                naviagte("/")
                 setUserAddress(null);
                 setUserType(null);
                 setUserName(null);
@@ -64,9 +85,9 @@ const TopBar = () => {
                 localStorage.removeItem("userName");  
                 localStorage.removeItem("userUsername");
               }}
-              className="text-[12px] font-regular text-red-600 hover:text-red-800 transition-colors duration-200"
+              className="text-[11px] font-regular text-[#9D0202] hover:opacity-80 transition-colors duration-200"
             >
-              Logout
+              LOGOUT
             </button>
           </nav>
         </div>

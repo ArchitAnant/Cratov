@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "./Action";
+import {Pencil,Plus} from "lucide-react"
 
 const UserProfileCard = ({
   name,
@@ -16,44 +17,48 @@ const UserProfileCard = ({
     <div className="flex flex-col md:flex-row justify-between mb-12 relative font-poppins">
       <div className="flex flex-col gap-4">
         <h2 className="text-[26px] md:text-[30px] font-medium text-black">Profile</h2>
-        <div className="flex items-center gap-5 pt-10">
+        <div className="flex items-center gap-5 pt-10 ps-5">
           <img
             src={profileImage}
             alt="Profile"
-            className="w-20 h-20 rounded-full object-cover"
+            className="w-[116px] h-[116px] rounded-full object-cover"
           />
-          <div className="space-y-1">
-            <h3 className="text-xl font-medium text-black">{name}</h3>
-            <p className="text-sm text-gray-600">@{username}</p>
-            <p className="text-sm text-gray-700">
+          <div className="flex flex-col">
+            <h3 className="text-[25px] font-medium text-black">{name}</h3>
+            <p className="mt-1 text-sm text-black">@{username}</p>
+            <div className="mt-5 flex flex-row items-center">
+            <p className=" text-[15px] opacity-50 text-black">
               {userType}
-              {showVotes && (
-                <span className="font-medium"> Votes Left : {votesLeft}</span>
-              )}
             </p>
+            {userType==="user" && (
+                <span className="ps-5 text-[15px] font-medium"> Votes Left : {votesLeft}</span>
+              )}
+              </div> 
           </div>
         </div>
       </div>
 
       {/* Action Buttons - Using standardized Button component */}
-      <div className="absolute top-12 right-0 flex flex-col gap-4 w-[180px] z-10">
+      <div className="mt-10 flex flex-col justify-end items-center gap-4 w-[180px] z-10 pe-5">
         <Button
-          variant="secondary"
+          variant="text"
           size="profile"
           onClick={onEditProfile}
-          icon="✏️"
+          icon={<Pencil size={16} fill={true} />}
+          className="text-regular"
         >
+          
           Edit Profile
         </Button>
 
-        <Button
-          variant="secondary"
+        {userType==="user" &&<Button
+          variant="text"
           size="profile"
           onClick={onAddPothole}
-          icon="➕"
+          icon={<Plus size={18} fill={true} />}
         >
           Add Pothole
-        </Button>
+        </Button>}
 
         {onDownloadPreRepair && (
           <Button

@@ -11,6 +11,28 @@ import ast
 app = func.FunctionApp()
 model = ModelWrapper()
 
+@app.route(route="health", auth_level=func.AuthLevel.ANONYMOUS)
+def health_check(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Health check endpoint to verify if the function app is running.
+    """
+    logging.info('Health check triggered.')
+    try:
+        return func.HttpResponse(
+            json.dumps({"status": "healthy"}),
+            status_code=200,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
+    except Exception as e:
+        logging.error(f"Error in health check: {str(e)}")
+        return func.HttpResponse(
+            json.dumps({"error": "Internal Server Error"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
+
 @app.route(route="predictPothole", auth_level=func.AuthLevel.FUNCTION)
 def predictPothole(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Trigger function triggered to predict potholes.')
@@ -311,9 +333,27 @@ def check_registered_user(req: func.HttpRequest) -> func.HttpResponse:
                 headers={"Access-Control-Allow-Origin": "*"}
             )
         
-        if checkAddressInUsers(address) or checkAddressInAgency(address) or checkAddressInContractor(address):
+        if checkAddressInUsers(address) :
             return func.HttpResponse(
-                json.dumps({"registered": True}),
+                json.dumps({"registered": True, "role": "user"}),
+                status_code=200,
+                mimetype="application/json",
+                headers={
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
+        if checkAddressInAgency(address):
+            return func.HttpResponse(
+                json.dumps({"registered": True, "role": "agency"}),
+                status_code=200,
+                mimetype="application/json",
+                headers={
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
+        if checkAddressInContractor(address):
+            return func.HttpResponse(
+                json.dumps({"registered": True, "role": "contractor"}),
                 status_code=200,
                 mimetype="application/json",
                 headers={
@@ -340,6 +380,62 @@ def check_registered_user(req: func.HttpRequest) -> func.HttpResponse:
                 "Access-Control-Allow-Origin": "*"
             }
         )
+
+@app.route(route="fetchUserDetails", auth_level=func.AuthLevel.FUNCTION)
+def get_user_details(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Trigger function triggered to fetch user details.')
+    try:
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
+        parms_json = req.get_json()
+        if not parms_json:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. JSON body is required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        
+        address = parms_json.get("address")
+        user = parms_json.get("role")
+
+        user_details = fetch_user_details(address, user)
+
+        return func.HttpResponse(
+            json.dumps(user_details),
+            status_code=200,
+            mimetype="application/json",
+            headers={
+                "Access-Control-Allow-Origin": "*"
+            }
+        )
+
+        if not address or not user:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. 'address' and 'user' fields are required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={
+                "Access-Control-Allow-Origin": "*"
+            }
+        )
+
 
 
 

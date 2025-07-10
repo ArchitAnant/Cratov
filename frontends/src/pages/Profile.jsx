@@ -5,21 +5,20 @@ import { useLogin } from "../context/LoginContext";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { userType } = useLogin();
+  const { userType, setUserType, userName,setUserName, userUsername, } = useLogin();
 
   return (
     <div className="font-poppins px-8 py-8 min-h-screen bg-white">
-      {/* Profile Header */}
       <UserProfileCard
-        name="Archit Anant"
-        username="ari_archit_"
-        userType="User"
+        name={userName}
+        username={userUsername}
+        userType={userType}
         votesLeft={8}
         showVotes={true}
         onEditProfile={() => {}}
         onAddPothole={() => {
           sessionStorage.setItem('lastProfileType', 'user');
-          navigate("/reportissue", { state: { userType: "user" } });
+          navigate("/reportissue", { state: { userType: userType } });
         }}
       />
 

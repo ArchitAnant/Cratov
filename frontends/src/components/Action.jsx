@@ -15,7 +15,7 @@ export const Button = ({
   icon = null,
   ...props
 }) => {
-  const baseStyles = "flex items-center justify-center gap-2 font-medium transition-all duration-200 cursor-pointer";
+  const baseStyles = "flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer";
 
   const variants = {
     // Primary black button (ActionButton style)
@@ -31,7 +31,9 @@ export const Button = ({
     verify: "bg-green-600 text-white hover:bg-green-700",
 
     // Outline button
-    outline: "border border-gray-300 text-black hover:bg-gray-50"
+    outline: "border border-gray-300 text-black hover:bg-gray-50",
+
+    text : "bg-transparent text-black hover:opacity-80"
   };
 
   const sizes = {

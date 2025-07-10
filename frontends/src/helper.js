@@ -160,7 +160,8 @@ async function connectWallet() {
   }
 }
 
-async function checkAlredyRegisted(address){
+async function checkAlredyRegisted(address,setUserType){
+  
   const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/checkregister?address=${address}&code=${AZURE_FUNCTION_KEY}`;
 
   try{
@@ -176,6 +177,8 @@ async function checkAlredyRegisted(address){
     }
 
     const data = await response.json();
+    
+    setUserType(data.role); // Assuming the API returns { registered: true/false, role: "user"/"agency"/"contractor" }
     return data.registered; // Assuming the API returns { isRegistered: true/false }
   }
   catch (error) {
@@ -239,5 +242,34 @@ async function registerNewUser(address, userName, userType, userUsername) {
   }
 }
 
+async function getUserDetails(address,userType) {
+  const payload = {
+    address : address,
+    role : userType
+  }
+  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/fetchuserdetails?code=${AZURE_FUNCTION_KEY}`;
 
-export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted,registerNewUser };
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data; // Assuming the API returns user details
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    throw error;
+  }
+  
+}
+
+
+export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails };
