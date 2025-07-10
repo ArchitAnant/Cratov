@@ -4,6 +4,7 @@ import StatusCard from "../components/StatusCard";
 
 const AgencyProfile = () => {
   const navigate = useNavigate();
+
   return (
     <div className="font-poppins px-8 py-20 min-h-screen bg-white">
       {/* Profile Header */}
@@ -13,10 +14,7 @@ const AgencyProfile = () => {
         userType="Agency"
         showVotes={false}
         onEditProfile={() => {}}
-        onAddPothole={() => {
-          sessionStorage.setItem('lastProfileType', 'agency');
-          navigate("/reportissue", { state: { userType: "agency" } });
-        }}
+        // Removed onAddPothole prop
       />
 
       {/* Tabs */}
