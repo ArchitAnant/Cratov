@@ -10,13 +10,13 @@ const StatusCard = ({
   voteCount,
   price,
   userType = "user",
-  onExpand = () => console.log("Expand clicked"),
+  onExpand = () => {},
   showBookmark = true
 }) => {
   const isApproved = status === "Approved";
 
   return (
-    <div className="bg-black bg-opacity-[0.03] rounded-[50px] w-[338px] h-[326px] flex flex-col justify-between pt-9 px-9 pb-5 font-poppins ml-6">
+    <div className="bg-black bg-opacity-[0.03] rounded-[50px] w-[338px] h-[326px] flex flex-col justify-between pt-9 px-9 pb-5 font-poppins">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-2">
@@ -46,17 +46,20 @@ const StatusCard = ({
         )}
       </div>
 
-      {/* Bottom Section - Conditional based on user type */}
+      {/* Bottom Section - Show for both user and agency */}
       <div className="flex items-center justify-between">
-        {/* Left Section */}
-        {userType === "user" && !isApproved && (
+        {/* Left Section - Show arrow icon OR rupees based on data */}
+
+        {/* Show arrow icon + vote count when no price (for both user and agency) */}
+        {!price && (
           <div className="flex flex-row justify-center items-center gap-2 bg-white p-4 w-[100px] rounded-full">
             <CornerLeftUp size={16} className="text-black" />
-            <p className="text-sm text-black">{voteCount}</p>
+            <p className="text-sm text-black">{voteCount || 0}</p>
           </div>
         )}
 
-        {userType === "agency" && isApproved && (
+        {/* Show rupees when price exists (for both user and agency) */}
+        {price && (
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-[#D9D9D9]/50 rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-black rounded-full"></div>
@@ -65,6 +68,7 @@ const StatusCard = ({
           </div>
         )}
 
+        {/* Always show Expand button for both user and agency */}
         <ActionButton
           onClick={onExpand}
           action="Expand"

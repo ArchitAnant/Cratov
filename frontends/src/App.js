@@ -7,7 +7,7 @@ import Verify from "./pages/Verify";
 import PostDetail from "./pages/PostDetail";
 import BiddingDetail from "./pages/BiddingDetail";
 import ProjectProgress from "./pages/ProjectProgress";
-import FundedDetail from "./pages/Funded";
+// import FundedDetail from "./pages/Funded"; // Commented out - will use later if needed
 import ConstructionRating from "./pages/ConstructionRating";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -41,7 +41,7 @@ const MainBrowser = () => {
         <Route path="/postdetail" element={<PostDetail />} />
         <Route path="/bidding" element={<BiddingDetail />} />
         <Route path="/progress/:id" element={<ProjectProgress />} />
-        <Route path="/funded" element={<FundedDetail />} />
+        {/* <Route path="/funded" element={<FundedDetail />} /> */} {/* Commented out - will use later if needed */}
         <Route path="/rate-construction" element={<ConstructionRating />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />

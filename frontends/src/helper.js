@@ -75,7 +75,6 @@ async function uploadPostToBackend(payload) {
 
     return await response.json();
   } catch (error) {
-    console.error('Error uploading images:', error);
     throw error;
   }
 }
@@ -98,7 +97,6 @@ async function predictPotholes(postID) {
     return await response.json();
 
   } catch (error) {
-    console.error('Error predicting potholes:', error);
     throw error;
   }
 }
@@ -184,7 +182,6 @@ async function checkAlredyRegisted(address,setUserType){
     return data.registered; // Assuming the API returns { isRegistered: true/false }
   }
   catch (error) {
-    console.error('Error checking registration:', error);
     throw error;
   }
 }
@@ -216,8 +213,7 @@ async function registerNewUser(address, userName, userType, userUsername) {
     const resp = await response.json();
 
     if (resp.success) {
-      console.log("User registered successfully:", resp);
-      return true; 
+      return true;
     }
     else {
       var errorMessage = resp.message || "Unknown error occurred";
@@ -267,7 +263,6 @@ async function getUserDetails(address,userType) {
     const data = await response.json();
     return data; // Assuming the API returns user details
   } catch (error) {
-    console.error('Error fetching user details:', error);
     throw error;
   }
   

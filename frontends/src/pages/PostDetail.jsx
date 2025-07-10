@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { getPostData } from "../context/post";
+import { getPostData, savePostData } from "../context/post";
 import { useLogin } from "../context/LoginContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ActionButton, Button, ImageGallery } from "../components/Action";
+import { ActionButton, ImageGallery } from "../components/Action";
 import { Bookmark, CornerLeftUp } from "lucide-react";
 import PostPageInfoCard from "../components/PostInfoCard";
 
@@ -30,9 +30,15 @@ const PostDetail = () => {
   const isAgency = currentUserType === "agency";
 
   useEffect(() => {
-    const data = getPostData();
-    if (data) setPost(data);
-  }, []);
+    // Check if post data came from navigation state first
+    if (locationState.state?.post) {
+      setPost(locationState.state.post);
+    } else {
+      // Fallback to saved post data
+      const data = getPostData();
+      if (data) setPost(data);
+    }
+  }, [locationState]);
 
   return (
     <div className="min-h-screen bg-white pt-14 pb-10 px-[86px] font-poppins">
@@ -67,7 +73,26 @@ const PostDetail = () => {
               // Upvote section for regular users only
               <div className="flex items-center gap-4">
                 <button
-                  onClick={() => console.log("Upvote clicked")}
+                  onClick={() => {
+                    // Save post data for BiddingDetail page
+                    const biddingData = {
+                      address: post.landmark || post.address || "No address provided",
+                      images: post.images || [],
+                      userType: currentUserType,
+                      status: post.road_condition || post.status || "Awaiting Approval",
+                      username: post.username || "Anonymous",
+                      uploaded_at: post.uploaded_at,
+                      post_id: post.post_id || post.postID
+                    };
+
+                    // Navigate to BiddingDetail page
+                    navigate("/bidding", {
+                      state: {
+                        userType: currentUserType,
+                        post: biddingData
+                      }
+                    });
+                  }}
                   className="flex items-center justify-center gap-2
                     w-[146px] h-[56px] rounded-[49px]
                     bg-[#D9D9D9] text-black

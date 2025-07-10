@@ -11,7 +11,8 @@ const ExpandableFormSection = ({
   maxLength = 500,
   colorTheme = "blue", // blue, green, purple, orange, red
   required = false,
-  disabled = false
+  disabled = false,
+  type = "string" // "string", "integer", "decimal"
 }) => {
   const colorClasses = {
     blue: {
@@ -87,19 +88,49 @@ const ExpandableFormSection = ({
             {title} Details
             {required && <span className="text-red-500 ml-1">*</span>}
           </label>
-          <textarea
-            placeholder={placeholder}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            rows={rows}
-            maxLength={maxLength}
-            disabled={disabled}
-            className={`w-full p-4 border-2 border-gray-200 rounded-xl 
-              focus:outline-none focus:ring-2 ${theme.focus}
-              transition-all duration-200 resize-none shadow-sm
-              ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-            `}
-          />
+          {type === "string" ? (
+            <textarea
+              placeholder={placeholder}
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              rows={rows}
+              maxLength={maxLength}
+              disabled={disabled}
+              className={`w-full p-4 border-2 border-gray-200 rounded-xl
+                focus:outline-none focus:ring-2 ${theme.focus}
+                transition-all duration-200 resize-none shadow-sm
+                ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+              `}
+            />
+          ) : (
+            <input
+              type="number"
+              placeholder={placeholder}
+              value={value}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                // Validation based on type
+                if (type === "integer") {
+                  // Only allow integers
+                  if (inputValue === "" || /^\d+$/.test(inputValue)) {
+                    onChange(inputValue);
+                  }
+                } else if (type === "decimal") {
+                  // Allow decimals
+                  if (inputValue === "" || /^\d*\.?\d*$/.test(inputValue)) {
+                    onChange(inputValue);
+                  }
+                }
+              }}
+              maxLength={maxLength}
+              disabled={disabled}
+              className={`w-full p-4 border-2 border-gray-200 rounded-xl
+                focus:outline-none focus:ring-2 ${theme.focus}
+                transition-all duration-200 shadow-sm
+                ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+              `}
+            />
+          )}
           <div className="mt-2 flex justify-between items-center">
             <div className="text-xs text-gray-500">
               {value.length}/{maxLength} characters

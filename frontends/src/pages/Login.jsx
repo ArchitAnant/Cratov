@@ -60,16 +60,12 @@ const MainLogin = () => {
         <button onClick={async () => {
             const walletInfo = await connectWallet();
             if (walletInfo) {
-                // Do something with walletInfo.provider, walletInfo.signer, walletInfo.userAddress
-                console.log("Connected:", walletInfo.userAddress);
                 setUserAddress(walletInfo.userAddress);
                 checkAlredyRegisted(walletInfo.userAddress,setUserType).then((isRegistered) => {
                     if (isRegistered) {
                         setLoginState(true);
-                        console.log("User is already registered");  
                     }
                     else {
-                        console.log("User is not registered");
                         setScreenCount(1);
                     }
                 });

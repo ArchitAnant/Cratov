@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ActionButton } from "../components/Action";
-import { getPostData } from "../context/post";
+import { getPostData, savePostData } from "../context/post";
 import { useLogin } from "../context/LoginContext";
 import ExpandableFormSection from "../components/ExpandableFormSection";
 import PostInfoCard from "../components/PostInfoCard";
 import PostImageGallery from "../components/PostImageGallery";
+import MapSelector from "../components/MapSelector";
 
 const AgencyApproval = () => {
   // Boolean variables for user type based UI flow
@@ -19,45 +20,90 @@ const AgencyApproval = () => {
 
   // Form sections configuration
   const formSections = [
+    // String fields
     {
-      id: "roadLength",
-      title: "Road Length",
-      placeholder: "Enter detailed road length measurements, specifications, and analysis...",
+      id: "roadDimensions",
+      title: "Road Length & Width",
+      type: "string",
+      placeholder: "Enter road length and width measurements...",
       colorTheme: "blue",
-      rows: 4,
-      maxLength: 500
-    },
-    {
-      id: "roadWidth", 
-      title: "Road Width",
-      placeholder: "Enter road width measurements, lane specifications, and width analysis...",
-      colorTheme: "green",
-      rows: 4,
-      maxLength: 500
+      rows: 3,
+      maxLength: 300
     },
     {
       id: "maintenanceHistory",
-      title: "Maintenance History", 
-      placeholder: "Enter previous maintenance records, repair history, and timeline details...",
+      title: "Maintenance History",
+      type: "string",
+      placeholder: "Enter maintenance records and history...",
       colorTheme: "purple",
-      rows: 4,
-      maxLength: 500
+      rows: 3,
+      maxLength: 300
     },
     {
       id: "roadSurface",
       title: "Road Surface",
-      placeholder: "Enter road surface condition, material type, wear analysis, and surface quality details...",
-      colorTheme: "orange", 
-      rows: 4,
-      maxLength: 500
+      type: "string",
+      placeholder: "Enter road surface condition details...",
+      colorTheme: "orange",
+      rows: 3,
+      maxLength: 300
     },
     {
       id: "roadGeometry",
       title: "Road Geometry",
-      placeholder: "Enter comprehensive road geometry details including width, length, maintenance, history, road_surface, road_geometry, road_safety, features, POI, ROI, BRD_deflection...",
+      type: "string",
+      placeholder: "Enter road geometry specifications...",
       colorTheme: "red",
-      rows: 5,
-      maxLength: 800
+      rows: 3,
+      maxLength: 300
+    },
+    {
+      id: "safetyFeature",
+      title: "Safety Feature",
+      type: "string",
+      placeholder: "Enter safety features and requirements...",
+      colorTheme: "blue",
+      rows: 3,
+      maxLength: 300
+    },
+    // Integer field
+    {
+      id: "pci",
+      title: "PCI (Pavement Condition Index)",
+      type: "integer",
+      placeholder: "Enter PCI value (0-100)",
+      colorTheme: "green",
+      rows: 1,
+      maxLength: 3
+    },
+    // Decimal fields
+    {
+      id: "rqi",
+      title: "RQI (Ride Quality Index)",
+      type: "decimal",
+      placeholder: "Enter RQI value (decimal)",
+      colorTheme: "purple",
+      rows: 1,
+      maxLength: 10
+    },
+    {
+      id: "bbd",
+      title: "BBD (Benkelman Beam Deflection)",
+      type: "decimal",
+      placeholder: "Enter BBD value (decimal)",
+      colorTheme: "orange",
+      rows: 1,
+      maxLength: 10
+    },
+    // Max Bid Amount
+    {
+      id: "maxBidAmount",
+      title: "Max Bid Amount",
+      type: "decimal",
+      placeholder: "Enter maximum bid amount (₹)",
+      colorTheme: "red",
+      rows: 1,
+      maxLength: 15
     }
   ];
 
@@ -111,15 +157,26 @@ const AgencyApproval = () => {
 
   const handleConfirm = () => {
     if (isFormComplete()) {
-      alert(`Post confirmed successfully by ${userType}!`);
-      // Navigate based on user type
-      if (isAgency) {
-        navigate("/agency-profile");
-      } else if (isContractor) {
-        navigate("/contractor-profile");
-      } else {
-        navigate("/profile");
+      // Save post data for BiddingDetail page with approved status
+      const savedPostData = getPostData();
+      if (savedPostData) {
+        savePostData({
+          ...savedPostData,
+          status: "Approved",
+          road_condition: "Approved",
+          agency_approved: true,
+          stage: 1 // Set to stage 1 (Approved + On Bid)
+        });
       }
+
+      // Navigate to BiddingDetail page
+      navigate("/bidding", {
+        state: {
+          userType: "agency",
+          fromAgencyApproval: true,
+          stage: 1
+        }
+      });
     }
   };
 
@@ -138,7 +195,7 @@ const AgencyApproval = () => {
             <p className="text-[14px] text-gray-700">
               {postData.address || "Address not available"}
             </p>
-            
+
             {/* Coordinates */}
             <div className="mt-3 text-[12px] text-gray-600">
               <p>Latitude: {postData.coordinates.lat}</p>
@@ -146,13 +203,27 @@ const AgencyApproval = () => {
             </div>
           </div>
 
+          {/* Map Display */}
+          {postData.coordinates.lat && postData.coordinates.lon && (
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Location Map:</h3>
+              <MapSelector
+                location={{
+                  lat: parseFloat(postData.coordinates.lat) || 22.5726,
+                  lon: parseFloat(postData.coordinates.lon) || 88.3639
+                }}
+                onLocationSelect={() => {}} // Read-only map for approval
+              />
+            </div>
+          )}
+
           {/* Standardized Image Gallery */}
           <div className="mb-8">
             <h3 className="text-sm font-medium text-gray-700 mb-3">Post Images:</h3>
-            <PostImageGallery 
+            <PostImageGallery
               images={postData.images}
               maxImages={4}
-              imageSize="80px"
+              imageSize="114px"
               showModal={true}
             />
           </div>
@@ -175,6 +246,7 @@ const AgencyApproval = () => {
                 rows={section.rows}
                 maxLength={section.maxLength}
                 colorTheme={section.colorTheme}
+                type={section.type} // Pass input type for validation
                 required={isAgency} // Only required for agency users
                 disabled={!isAgency && !isContractor} // Disable for regular users
               />
@@ -184,17 +256,17 @@ const AgencyApproval = () => {
 
         {/* Right Section - Standardized Post Info */}
         <PostInfoCard
-          title={isAgency ? "Post Approval Details" : "Post Information"}
+          title={isAgency ? "About the post :" : "Post Information"}
           submittedBy={{
-            name: postData.submittedBy || "ari_archit_",
-            avatar: postData.avatar || "https://i.ibb.co/Gt47sS0/avatar.png"
+            name: "ari_archit_",
+            avatar: "https://via.placeholder.com/40x40/000000/FFFFFF?text=U"
           }}
-          submittedOn={postData.submittedOn || new Date().toLocaleDateString('en-GB', {
+          submittedOn={new Date().toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'long',
             year: 'numeric'
           })}
-          reportStatus={isAgency ? "Pre-Repair Report is awaiting the Agency Approval" : "Pre-Repair Report is awaiting the Approval"}
+          reportStatus={isAgency ? "Pre-Repair Report :" : "Pre-Repair Report is awaiting the Approval"}
           showBookmark={true}
         >
           {/* Conditional Action Button based on user type */}
