@@ -161,7 +161,7 @@ async function connectWallet() {
 }
 
 async function checkAlredyRegisted(address,setUserType){
-  
+  console.log("Azure Function Key:", AZURE_FUNCTION_KEY);
   const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/checkregister?address=${address}&code=${AZURE_FUNCTION_KEY}`;
 
   try{
