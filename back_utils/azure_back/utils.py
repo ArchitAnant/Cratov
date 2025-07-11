@@ -103,7 +103,7 @@ def upload_image_to_blob(image_data, image_id, container_name="images"):
         logging.error(f"Failed to upload '{image_id}': {e}")
         return False
 
-def upload_post_to_table(post_id, landmark, coordinates, image_dict):
+def upload_post_to_table(post_id,username, landmark, coordinates, image_dict):
     """
     Upload post metadata to Azure Table Storage.
     """
@@ -117,6 +117,7 @@ def upload_post_to_table(post_id, landmark, coordinates, image_dict):
     entity = {
         "PartitionKey": post_id,
         "RowKey": "metadata",
+        "username": username,
         "landmark": landmark,
         "coordinates": f"{coordinates['lat']},{coordinates['lon']}",
         "uploaded_at": timestamp,
@@ -181,22 +182,23 @@ def fetch_post(post_id):
     table_client = table_service_client.get_table_client("posts")
 
     try:
-        entity = table_client.query_entities(f"PartitionKey eq '{post_id}'")[0]
+        entitries = table_client.query_entities(f"PartitionKey eq '{post_id}'")
         resp = {}
-        if entity["RowKey"] == "metadata":
-                resp["landmark"] = entity.get("landmark", "")
-                resp["coordinates"] = entity.get("coordinates", "")
-                resp["uploaded_at"] = entity.get("uploaded_at", "")
-                resp["road_condition"] = entity.get("road_condition", "")
-                resp["post_condition"] = entity.get("post_condition", "")
-        elif entity["RowKey"] in ["front", "left", "right", "back"]:
-                role = entity["RowKey"]
-                image_id = entity.get("image_id", "")
-                resp[role] = {
-                    "image_id": image_id,
-                }
-        elif entity["RowKey"] == "static_metadata":
-            resp["staic_metadata"] = entity.get("static_metadata", {})
+        for entity in entitries:
+            if entity["RowKey"] == "metadata":
+                    resp["landmark"] = entity.get("landmark", "")
+                    resp["coordinates"] = entity.get("coordinates", "")
+                    resp["uploaded_at"] = entity.get("uploaded_at", "")
+                    resp["road_condition"] = entity.get("road_condition", "")
+                    resp["post_condition"] = entity.get("post_condition", "")
+            elif entity["RowKey"] in ["front", "left", "right", "back"]:
+                    role = entity["RowKey"]
+                    image_id = entity.get("image_id", "")
+                    resp[role] = {
+                        "image_id": image_id,
+                    }
+            elif entity["RowKey"] == "static_metadata":
+                resp["staic_metadata"] = entity.get("static_metadata", {})
 
         return resp
     except Exception as e:
@@ -220,15 +222,16 @@ def fetch_all_posts():
             rk = entity["RowKey"]
             if pk.startswith("post_"):
                 try:
-                    _, username, post_id = pk.split("_", 2)
+                    post_id = pk
                 except ValueError:
                     continue  
             else:
                 continue
-            grouped[pk]["username"] = username
+            
             grouped[pk]["post_id"] = post_id
 
             if rk == "metadata":
+                grouped[pk]["username"] = entity.get("username","")
                 grouped[pk]["coordinates"] = entity.get("coordinates", "")
                 grouped[pk]["landmark"] = entity.get("landmark", "")
                 grouped[pk]["uploaded_at"] = entity.get("uploaded_at", "1970-01-01T00:00:00")

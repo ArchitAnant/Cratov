@@ -299,7 +299,13 @@ async function getPostList(){
       timestamp: post.uploaded_at || post.timestamp || post.created_at || new Date().toISOString(),
       voteCount: post.vote_count || post.voteCount || 0,
       bidStatus: post.bid_status || post.bidStatus || "",
-      price: post.price || post.amount || ""
+      price: post.price || post.amount || "",
+      coordinates: post.coordinates
+      ? {
+          lat: post.coordinates.split(",")[0],
+          lon: post.coordinates.split(",")[1],
+        }
+      : { lat: "22.5726", lon: "88.3639" } // Default coordinates if not provided
     }));
 
     return dataWithIds;
@@ -364,8 +370,46 @@ async function updatePostCondition(postID, roadCondition) {
   }
 }
 
+async function fetchImageData(postID) {
+  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/fetchimages?postid=${postID}&code=${AZURE_FUNCTION_KEY}`;
+  const images = {};
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Convert all base64 values into proper data URLs
+    for (const [key, value] of Object.entries(data)) {
+      if (value) {
+        // Detect MIME type from filename (optional improvement)
+        let mimeType = "image/png"; // default
+        if (key.endsWith(".jpg") || key.endsWith(".jpeg")) mimeType = "image/jpeg";
+        else if (key.endsWith(".webp")) mimeType = "image/webp";
+        else if (key.endsWith(".gif")) mimeType = "image/gif";
+        else if (key.endsWith(".svg")) mimeType = "image/svg+xml";
+
+        // Wrap base64 string in data URI
+        images[key] = `data:${mimeType};base64,${value}`;
+      }
+    }
+
+    return images;
+  } catch (error) {
+    console.error('Error fetching image data:', error);
+    return {};
+  }
+}
 
 
 
 export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,
-  connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails,addRoadCondition,updatePostCondition,getPostList };
+  connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails,addRoadCondition,updatePostCondition,getPostList,fetchImageData };

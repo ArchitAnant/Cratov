@@ -22,7 +22,7 @@ export function fileToBase64(file) {
 
 // Small post Data class - only essential data for home page display
 class SmallPost {
-  constructor(postID, username, address, status, timestamp, voteCount = 0, bidStatus = "", price = "") {
+  constructor(postID, username, address, status, timestamp, voteCount = 0, bidStatus = "", price = "",coordinates) {
     this.postID = postID;
     this.username = username;
     this.address = address;
@@ -31,6 +31,7 @@ class SmallPost {
     this.voteCount = voteCount;
     this.bidStatus = bidStatus;
     this.price = price;
+    this.coordinates = coordinates || { lat: "22.5726", lon: "88.3639" }; // Default coordinates if not provided
   }
 }
 
@@ -59,7 +60,8 @@ export function saveSmallPostsList(posts) {
     post.timestamp || post.created_at || new Date().toISOString(),
     post.voteCount || post.vote_count || post.votes || 0,
     post.bidStatus || post.bid_status || "",
-    post.price || post.amount || ""
+    post.price || post.amount || "",
+    post.coordinates || { lat: "22.5726", lon: "88.3639" } // Default coordinates if not provided
   ));
 
   localStorage.setItem('smallPostsList', JSON.stringify(smallPosts));
@@ -82,7 +84,8 @@ export function addSmallPost(postData) {
     postData.timestamp || new Date().toISOString(),
     postData.voteCount || 0,
     postData.bidStatus || "",
-    postData.price || ""
+    postData.price || "",
+    postData.coordinates || { lat: "22.5726", lon: "88.3639" } // Default coordinates if not provided
   );
 
   // Add to beginning of array (newest first)

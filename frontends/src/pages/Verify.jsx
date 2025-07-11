@@ -68,8 +68,6 @@ const Verify = () => {
       setShowResult(true);
       setUploading(false);
       if (value[0] === 1) {
-        console.log("value[1] is: ", value[1]);
-        console.log("Post ID is: ", post_id);
         upload.setRoadCondition(value[1]);
         addRoadCondition(post_id, value[1]);
         setStatus("Accepted");

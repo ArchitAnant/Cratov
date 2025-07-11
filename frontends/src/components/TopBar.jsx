@@ -31,7 +31,7 @@ const TopBar = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 bg-white border-gray-200 transition-shadow duration-300 ${
+        className={`fixed top-0 left-0 w-full bg-white border-gray-200 transition-shadow duration-300 ${
           hasShadow ? "shadow-md" : ""
         }`}
       >

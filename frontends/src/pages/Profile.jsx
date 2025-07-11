@@ -44,7 +44,7 @@ const Profile = () => {
       </div>
 
       {/* Cards */}
-      <div
+      {/* <div
         style={{
           position: "relative",
           minHeight: "300px",
@@ -174,7 +174,7 @@ const Profile = () => {
             }
           }}
         />
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -181,7 +181,7 @@ const AgencyApproval = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white font-poppins pt-24">
+    <div className="min-h-screen max-w-[600px] bg-white font-poppins ps-10">
       <div className="flex flex-col lg:flex-row gap-8 p-8">
         {/* Left Section - Approval Details */}
         <div className="flex-1">

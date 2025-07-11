@@ -199,7 +199,7 @@ def upload_post(req: func.HttpRequest) -> func.HttpResponse:
             else:
                 logging.log(logging.ERROR, f"Failed to upload image {role[idx]} for post {post_id}")
 
-        upload_post_to_table(post_id, landmark, coordinates, image_dict)
+        upload_post_to_table(post_id, user_id, landmark, coordinates, image_dict)
 
 
         return func.HttpResponse(
@@ -437,8 +437,6 @@ def get_user_details(req: func.HttpRequest) -> func.HttpResponse:
         )
 
 
-
-
 @app.route(route="addRoadCondition", auth_level=func.AuthLevel.FUNCTION)
 def addRoadCondition(req : func.HttpRequest) -> func.HttpResponse:
     logging.info('Trigger function triggered to add road condition.')
@@ -552,53 +550,114 @@ def updatePostCondition(req: func.HttpRequest) -> func.HttpResponse:
             headers={"Access-Control-Allow-Origin": "*"}
         )
     
-# @app.route(route="fetchPost", auth_level=func.AuthLevel.FUNCTION)
-# def fetchPost(req: func.HttpRequest) -> func.HttpResponse:
-#     logging.info('Trigger function triggered to fetch post.')
-#     try:
-#         if req.method == "OPTIONS":
-#             return func.HttpResponse(
-#                 "",
-#                 status_code=204,
-#                 headers={
-#                     "Access-Control-Allow-Origin": "*",
-#                     "Access-Control-Allow-Methods": "GET, OPTIONS",
-#                     "Access-Control-Allow-Headers": "Content-Type",
-#                 },
-#             )
+@app.route(route="fetchPost", auth_level=func.AuthLevel.FUNCTION)
+def fetchPost(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Trigger function triggered to fetch post.')
+    try:
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
         
-#         post_id = req.params.get('postid')
-#         if not post_id:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Invalid request. 'postid' field is required."}),
-#                 status_code=400,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
+        post_id = req.params.get('postid')
+        if not post_id:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. 'postid' field is required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
 
-#         resp = fetch_post(post_id)
-#         if resp:
-#             return func.HttpResponse(
-#                 json.dumps(resp),
-#                 status_code=200,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
-#         else:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Post not found."}),
-#                 status_code=404,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
+        resp = fetch_post(post_id)
+        if resp:
+            return func.HttpResponse(
+                json.dumps(resp),
+                status_code=200,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        else:
+            return func.HttpResponse(
+                json.dumps({"error": "Post not found."}),
+                status_code=404,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
     
-#     except Exception as e:
-#         return func.HttpResponse(
-#             json.dumps({"error": f"Internal Server Error: {str(e)}"}),
-#             status_code=500,
-#             mimetype="application/json",
-#             headers={"Access-Control-Allow-Origin": "*"}
-#         )
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
+
+@app.route(route="fetchImages", auth_level=func.AuthLevel.FUNCTION)
+def fetchImages(req: func.HttpRequest) -> func.HttpResponse:   
+    logging.info('Trigger function triggered to fetch images.')
+    try:
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
+         
+        post_id = req.params.get('postid')
+        if not post_id:
+             return func.HttpResponse(
+                    json.dumps({"error": "Invalid request. 'postid' field is required."}),
+                    status_code=400,
+                    mimetype="application/json",
+                    headers={"Access-Control-Allow-Origin": "*"}
+             )
+        image_list = fetch_images(post_id)
+        image_dict = get_image_from_blob(image_list)
+
+        if not image_dict:
+            return func.HttpResponse(
+                json.dumps({"error": "Unable to fetch images for the given post ID."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        encoded_images = {}
+
+        for name, stream in image_dict.items():  # ✅ Use .items() for dict iteration
+            if stream is None:
+                encoded_images[name] = None
+            else:
+                stream.seek(0)
+                b64_str = base64.b64encode(stream.read()).decode("utf-8")
+                encoded_images[name] = b64_str
+
+        return func.HttpResponse(
+            json.dumps(encoded_images),
+            status_code=200,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
+
+        
+    except Exception as e:
+        logging.log(logging.ERROR, f"Error in fetchImages: {str(e)}")
+        return func.HttpResponse(
+            json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )   
+
 
 # @app.route(route="uploadPostMetadata", auth_level=func.AuthLevel.FUNCTION)
 # def uploadPostMetadata(req: func.HttpRequest) -> func.HttpResponse:

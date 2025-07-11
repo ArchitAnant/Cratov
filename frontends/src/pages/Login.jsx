@@ -101,13 +101,7 @@ const MainLogin = () => {
                 handleRegister();
                 
                 setScreenCount(4);
-                console.log("userAddress", userAddress);
-                console.log("userType", userType);
-                console.log("userName", userName);
-                console.log("userUsername", userUsername);
-
-
-                
+            
                 
             }} className={`flex flex-row items-center justify-center py-4 px-7 rounded-full ml-10 ${loading ? "opacity-50 pointer-events-none" : "hover:opacity-[0.5]"} transition-all duration-300 cursor-pointer`}>
                 <ArrowRight className="size-[100px] hover:opacity-40 transition-all duration-300" strokeWidth={1}/>

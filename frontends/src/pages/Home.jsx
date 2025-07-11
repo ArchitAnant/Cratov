@@ -81,8 +81,8 @@ const Home = () => {
       {posts.map((post, index) => (
         <StatusCard
           key={post.post_id || post.postID || index}
-          username={post.username || "Anonymous"}
-          time={post.uploaded_at ? new Date(post.uploaded_at).toLocaleDateString() : "Recently"}
+          username={post.username || "Lolading"}
+          time={post.uploaded_at ? new Date(post.uploaded_at).toLocaleDateString() : "Loading"}
           address={post.landmark || "Location not specified"}
           status={post.road_condition || "Awaiting Approval"}
           bidStatus=""

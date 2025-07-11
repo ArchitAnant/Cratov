@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { getPostData, savePostData } from "../context/post";
 import { useLogin } from "../context/LoginContext";
-import { useLocation, useNavigate } from "react-router-dom";
+import { data, useLocation, useNavigate } from "react-router-dom";
 import { ActionButton, ImageGallery } from "../components/Action";
 import { Bookmark, CornerLeftUp } from "lucide-react";
+import { fetchImageData } from "../helper";
 import PostPageInfoCard from "../components/PostInfoCard";
+import MapSelector from "../components/MapSelector";
 
 const PostDetail = () => {
   const [post, setPost] = useState({ address: "", images: [] });
+  const [loading,setLoading] = useState(true)
   const locationState = useLocation();
   const navigate = useNavigate();
   const { userType } = useLogin();
@@ -30,17 +33,29 @@ const PostDetail = () => {
   const isAgency = currentUserType === "agency";
 
   useEffect(() => {
+    setLoading(true)
+
+    
     // Check if post data came from navigation state first
     if (locationState.state?.post) {
-      setPost(locationState.state.post);
+     fetchImageData(locationState.state.post.postID).then((imagesObj) => {
+      const imagesArray = Object.values(imagesObj); 
+      setPost({ ...locationState.state.post, images: imagesArray });
+      setLoading(false);
+    });
     } else {
       // Fallback to saved post data
       const data = getPostData();
-      if (data) setPost(data);
+      if (data) {
+        setPost(data);
+        
+      }
     }
   }, [locationState]);
 
   return (
+    <>
+    {!loading ? (
     <div className="min-h-screen bg-white pt-14 pb-10 px-[86px] font-poppins">
       <div className="flex flex-col md:flex-row gap-10">
         {/* Left Section */}
@@ -51,6 +66,18 @@ const PostDetail = () => {
 
 
           </p>
+          {post.coordinates.lat && post.coordinates.lon && (
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Location Map:</h3>
+              <MapSelector
+                location={{
+                  lat: parseFloat(post.coordinates.lat) || 22.5726,
+                  lon: parseFloat(post.coordinates.lon) || 88.3639
+                }}
+                onLocationSelect={() => {}} // Read-only map for approval
+              />
+            </div>
+          )}
 
           {/* Current Status */}
           <div className="mb-4">
@@ -116,18 +143,48 @@ const PostDetail = () => {
         </div>
 
         {/* Right Section */}
-        <PostPageInfoCard>
+        <PostPageInfoCard
+        submittedBy={{
+            name: post.username || "Anonymous",
+            avatar: post.userAvatar || "https://i.ibb.co/Gt47sS0/avatar.png"
+          }}
+          submittedOn={post.uploaded_at ? new Date(post.uploaded_at).toLocaleDateString() : "Recently"}
+          reportStatus={post.road_condition ? `Pre-Repair Report is ${post.road_condition}` : "Pre-Repair Report is awaiting the Approval"}
+          showBookmark={false}
+          className="md:w-[30%] w-full"
+          >
+          
           {userType=== "agency" && (
             <>
             <div className="pt-10"></div>
-            <ActionButton action={"Verify"} onClick={console.log("yoyoyo")}></ActionButton>
+            <ActionButton action={"Verify"} onClick={() => {
+                        // Save post data for Agency Approval page
+                        savePostData({
+                          address: post.address || post.landmark || "Address not available",
+                          images: post.images || [],
+                          userType: "agency",
+                          status: post.status || post.road_condition || "Awaiting Approval",
+                          username: post.username || "ari_archit_",
+                          uploaded_at: post.uploaded_at || new Date().toISOString(),
+                          post_id: post.post_id || "unknown",
+                          coordinates: post.coordinates || { lat: "22.5726", lon: "88.3639" }
+                        });
+
+                        navigate("/agency-approval", { state: { userType: "agency", post: post } });
+                      }
+              
+            }></ActionButton>
             </>
           )
           }
 
         </PostPageInfoCard>
       </div>
-    </div>
+    </div>):
+    <div>
+      <p className="flex items-center justify-center text-center text-black text-opacity-50 min-h-screen">Fetching Post Details</p>
+      </div>}
+    </>
   );
 };
 
@@ -182,18 +239,7 @@ export default PostDetail;
         //         {isAgency && (
         //           <div className="mt-12">
         //             <ActionButton
-        //               onClick={() => {
-        //                 // Save post data for Agency Approval page
-        //                 savePostData({
-        //                   address: post.address || post.landmark || "Address not available",
-        //                   images: post.images || [],
-        //                   userType: "agency",
-        //                   status: post.status || post.road_condition || "Awaiting Approval",
-        //                   username: post.username || "ari_archit_",
-        //                   uploaded_at: post.uploaded_at || new Date().toISOString(),
-        //                   post_id: post.post_id || "unknown",
-        //                   coordinates: post.coordinates || { lat: "22.5726", lon: "88.3639" }
-        //                 });
+        //               <>
 
         //                 navigate("/agency-approval", { state: { userType: "agency", post: post } });
         //               }}
