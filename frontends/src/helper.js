@@ -295,17 +295,20 @@ async function getPostList(){
       ...post,
       postID: post.post_id || post.postID || post.id || `backend-${Date.now()}-${index}`,
       address: post.landmark || post.address || "Location not specified",
-      status: post.road_condition || post.status || "Awaiting Approval",
+      status: post.post_condition || post.status || "Awaiting Approval",
       timestamp: post.uploaded_at || post.timestamp || post.created_at || new Date().toISOString(),
       voteCount: post.vote_count || post.voteCount || 0,
-      bidStatus: post.bid_status || post.bidStatus || "",
+      bidStatus: post.post_condition || post.bidStatus || "",
       price: post.price || post.amount || "",
       coordinates: post.coordinates
-      ? {
-          lat: post.coordinates.split(",")[0],
-          lon: post.coordinates.split(",")[1],
-        }
-      : { lat: "22.5726", lon: "88.3639" } // Default coordinates if not provided
+  ? {
+      lat: parseFloat(post.coordinates.split(",")[0]),
+      lon: parseFloat(post.coordinates.split(",")[1]),
+    }
+  : {
+      lat: 22.5726,
+      lon: 88.3639,
+    }
     }));
 
     return dataWithIds;
@@ -343,10 +346,10 @@ async function addRoadCondition(postID, roadCondition){
 
 }
 
-async function updatePostCondition(postID, roadCondition) {
+async function updatePostCondition(postID, postCondition) {
   const payload = {
     postID: postID,
-    condition: roadCondition
+    condition: postCondition
   };
 
   const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/updatepostcondition?code=${AZURE_FUNCTION_KEY}`;
@@ -361,7 +364,7 @@ async function updatePostCondition(postID, roadCondition) {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response}`);
     }
 
   } catch (error) {

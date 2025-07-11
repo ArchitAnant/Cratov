@@ -84,7 +84,7 @@ const Home = () => {
           username={post.username || "Lolading"}
           time={post.uploaded_at ? new Date(post.uploaded_at).toLocaleDateString() : "Loading"}
           address={post.landmark || "Location not specified"}
-          status={post.road_condition || "Awaiting Approval"}
+          status={post.post_condition || "Awaiting Approval"}
           bidStatus=""
           voteCount={0}
           price=""

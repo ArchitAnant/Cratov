@@ -7,6 +7,7 @@ import ExpandableFormSection from "../components/ExpandableFormSection";
 import PostInfoCard from "../components/PostInfoCard";
 import PostImageGallery from "../components/PostImageGallery";
 import MapSelector from "../components/MapSelector";
+import { updatePostCondition } from "../helper";
 
 const AgencyApproval = () => {
   // Boolean variables for user type based UI flow
@@ -126,6 +127,7 @@ const AgencyApproval = () => {
     const savedPostData = getPostData();
     if (savedPostData) {
       setPostData({
+        postid : savedPostData.post_id || "",
         address: savedPostData.address || "Address not available",
         images: savedPostData.images || [],
         coordinates: {
@@ -157,13 +159,13 @@ const AgencyApproval = () => {
 
   const handleConfirm = () => {
     if (isFormComplete()) {
-      // Save post data for BiddingDetail page with approved status
+      updatePostCondition(postData.postid, "On Bid")
       const savedPostData = getPostData();
       if (savedPostData) {
         savePostData({
           ...savedPostData,
-          status: "Approved",
-          road_condition: "Approved",
+          status: "On Bid",
+          road_condition: "",
           agency_approved: true,
           stage: 1 // Set to stage 1 (Approved + On Bid)
         });

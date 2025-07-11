@@ -30,6 +30,7 @@ function LocationPicker({ initialPostion, onSelect }) {
 }
 
 const MapSelector = ({ location, onLocationSelect }) => (
+
   <MapContainer
     className="h-[250px] w-[800px] mb-8 rounded-[21px]"
     center={[location.lat, location.lon]}

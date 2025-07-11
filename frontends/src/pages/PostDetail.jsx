@@ -9,14 +9,12 @@ import PostPageInfoCard from "../components/PostInfoCard";
 import MapSelector from "../components/MapSelector";
 
 const PostDetail = () => {
-  const [post, setPost] = useState({ address: "", images: [] });
+  const [post, setPost] = useState({ address: "", images: [],coordinates: { lat: 0.00, lon: 0.00} });
   const [loading,setLoading] = useState(true)
   const locationState = useLocation();
   const navigate = useNavigate();
   const { userType } = useLogin();
 
-  // Check navigation state first, then fallback to LoginContext, then saved post data
-  // Also check if we came from agency flow
   const referrer = document.referrer;
   const cameFromAgencyFlow = referrer.includes('/agency-profile') ||
                             locationState.state?.userType === "agency" ||
@@ -40,8 +38,9 @@ const PostDetail = () => {
     if (locationState.state?.post) {
      fetchImageData(locationState.state.post.postID).then((imagesObj) => {
       const imagesArray = Object.values(imagesObj); 
-      setPost({ ...locationState.state.post, images: imagesArray });
+      setPost({ ...locationState.state.post, images: imagesArray,coordinates: locationState.state.post.coordinates || { lat: 0.00, lon: 0.00 } });
       setLoading(false);
+      
     });
     } else {
       // Fallback to saved post data
@@ -71,8 +70,8 @@ const PostDetail = () => {
               <h3 className="text-sm font-medium text-gray-700 mb-3">Location Map:</h3>
               <MapSelector
                 location={{
-                  lat: parseFloat(post.coordinates.lat) || 22.5726,
-                  lon: parseFloat(post.coordinates.lon) || 88.3639
+                  lat: post.coordinates.lat,
+                  lon: post.coordinates.lon
                 }}
                 onLocationSelect={() => {}} // Read-only map for approval
               />
@@ -154,7 +153,7 @@ const PostDetail = () => {
           className="md:w-[30%] w-full"
           >
           
-          {userType=== "agency" && (
+          {userType=== "agency" && post.post_condition==="Awaiting Approval"&& (
             <>
             <div className="pt-10"></div>
             <ActionButton action={"Verify"} onClick={() => {
@@ -163,7 +162,7 @@ const PostDetail = () => {
                           address: post.address || post.landmark || "Address not available",
                           images: post.images || [],
                           userType: "agency",
-                          status: post.status || post.road_condition || "Awaiting Approval",
+                          status: post.status || post.post_condition || "Awaiting Approval",
                           username: post.username || "ari_archit_",
                           uploaded_at: post.uploaded_at || new Date().toISOString(),
                           post_id: post.post_id || "unknown",
@@ -190,65 +189,3 @@ const PostDetail = () => {
 
 export default PostDetail;
 
-
-// onClick={() => {
-//                         // Save post data for Agency Approval page
-//                         savePostData({
-//                           address: post.address || post.landmark || "Address not available",
-//                           images: post.images || [],
-//                           userType: "agency",
-//                           status: post.status || post.road_condition || "Awaiting Approval",
-//                           username: post.username || "ari_archit_",
-//                           uploaded_at: post.uploaded_at || new Date().toISOString(),
-//                           post_id: post.post_id || "unknown",
-//                           coordinates: post.coordinates || { lat: "22.5726", lon: "88.3639" }
-//                         });
-
-//                         navigate("/agency-approval", { state: { userType: "agency", post: post } });
-//                       }}
-{/* <div className="mt-2">
-            <div className="text-[14px] space-y-6">
-              {/* Submitted By */}
-        //       <div>
-        //         <p className="text-gray-500 mb-1">Submitted By :</p>
-        //         <div className="flex items-center gap-2">
-        //           <img
-        //             src="https://i.ibb.co/Gt47sS0/avatar.png"
-        //             alt="profile"
-        //             className="w-7 h-7 rounded-full"
-        //           />
-        //           <span className="font-medium">{post.username || "Anonymous"}</span>
-        //         </div>
-        //       </div>
-
-        //       {/* Submitted On */}
-        //       <div>
-        //         <p className="text-gray-500 mb-1">Submitted On :</p>
-        //         <p className="font-medium">
-        //           {post.uploaded_at ? new Date(post.uploaded_at).toLocaleDateString() : "Recently"}
-        //         </p>
-        //       </div>
-
-        //       {/* Pre-Repair Report */}
-        //       <div>
-        //         <p className="text-gray-500 mb-1">Pre-Repair Report :</p>
-        //         <p className="text-[12px] text-gray-500">
-        //           Pre-Repair Report is awaiting the Approval
-        //         </p>
-        //         {/* Verify button for Agency users in Pre-Repair Report section */}
-        //         {isAgency && (
-        //           <div className="mt-12">
-        //             <ActionButton
-        //               <>
-
-        //                 navigate("/agency-approval", { state: { userType: "agency", post: post } });
-        //               }}
-        //               action="Verify"
-        //               ifDisable={false}
-        //             />
-        //           </div>
-        //         )}
-        //       </div>
-        //     </div>
-        //   </div>
-        // </div> }

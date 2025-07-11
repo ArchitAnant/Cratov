@@ -509,6 +509,7 @@ def updatePostCondition(req: func.HttpRequest) -> func.HttpResponse:
         
         resp_json = req.get_json()
         if not resp_json:
+            logging.error("Invalid request. JSON body is required.")
             return func.HttpResponse(
                 json.dumps({"error": "Invalid request. JSON body is required."}),
                 status_code=400,
@@ -520,6 +521,7 @@ def updatePostCondition(req: func.HttpRequest) -> func.HttpResponse:
         condition = resp_json.get("condition")
 
         if not post_id or not condition:
+            logging.error("Invalid request. 'postID' and 'condition' fields are required.")
             return func.HttpResponse(
                 json.dumps({"error": "Invalid request. 'postID' and 'condition' fields are required."}),
                 status_code=400,

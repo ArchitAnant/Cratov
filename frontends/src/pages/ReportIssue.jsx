@@ -11,6 +11,7 @@ import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/leaflet.css';
 import ReportIssueForm from "../components/ReportIssueForm";
 
+
 function useCurrentLocation() {
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
@@ -62,20 +63,6 @@ function LocationPicker({ initialPostion,onSelect }) {
   ) : null;
 }
 
-const MapSelector = ({ location, onLocationSelect }) => (
-  <MapContainer
-  className="h-[250px] w-[800px] mb-8 rounded-[21px]"
-    center={[location.lat, location.lon]}
-    zoom={13}
-    // style={{ height: "400px", width: "100%", marginBottom: "2rem" }}
-  >
-    <TileLayer
-      attribution='&copy; OpenStreetMap contributors'
-      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    />
-    <LocationPicker initialPostion={location} onSelect={onLocationSelect} />
-  </MapContainer>
-);
 
 
 const ReportIssue = () => {
@@ -103,10 +90,10 @@ const ReportIssue = () => {
   const { location: coordinate, error } = useCurrentLocation();
   // Only set location if coordinate is available and different from current
   useEffect(() => {
-    if (coordinate && (!location || location.lat !== coordinate.lat || location.lon !== coordinate.lon)) {
-      setLocation(coordinate);
-    }
-  }, [coordinate, location, setLocation]);
+    if (coordinate && !location) {
+    setLocation(coordinate);
+  }
+  }, [coordinate]);
 
   const handleImageUpload = (index, event) => {
     const file = event.target.files[0];
@@ -127,6 +114,7 @@ const ReportIssue = () => {
       alert("Please upload all 4 images.");
       return;
     }
+    console.log("moving with coordinate", location);
     navigate("/verify", { state: { userType: currentUserType } });
   };
 
@@ -140,10 +128,25 @@ const ReportIssue = () => {
         location={location}
         images={images}
         handleImageUpload={handleImageUpload}
-        onLocationSelect={(loc) => setLocation(loc)}
+        onLocationSelect={(loc) => {
+          console.log("Selected location:", loc);
+          setLocation({ lat: loc.lat, lon: loc.lng });
+        }}
       />
       <GuideLineBar
-        onActionButtonClick={handleVerify}
+        onActionButtonClick={() => {
+              if (!address) {
+      alert("Please add an address.");
+      return;
+    }
+    setStringLandmark(address);
+    if (images.some((img) => img === null)) {
+      alert("Please upload all 4 images.");
+      return;
+    }
+    console.log("moving with coordinate", location);
+    navigate("/verify", { state: { userType: currentUserType } });
+        }}
         actionButtonText={isAgency ? "Verify" : "Post"}
       />
     </div>
