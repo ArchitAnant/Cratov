@@ -75,7 +75,6 @@ async function uploadPostToBackend(payload) {
 
     return await response.json();
   } catch (error) {
-    console.error('Error uploading images:', error);
     throw error;
   }
 }
@@ -98,7 +97,6 @@ async function predictPotholes(postID) {
     return await response.json();
 
   } catch (error) {
-    console.error('Error predicting potholes:', error);
     throw error;
   }
 }
@@ -160,8 +158,7 @@ async function connectWallet() {
   }
 }
 
-async function checkAlredyRegisted(address,setUserType){
-  console.log("Azure Function Key:", AZURE_FUNCTION_KEY);
+async function checkAlredyRegisted(address, setUserType, setUserName, setUserUsername){
   const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/checkregister?address=${address}&code=${AZURE_FUNCTION_KEY}`;
 
   try{
@@ -177,12 +174,25 @@ async function checkAlredyRegisted(address,setUserType){
     }
 
     const data = await response.json();
-    
-    setUserType(data.role); // Assuming the API returns { registered: true/false, role: "user"/"agency"/"contractor" }
-    return data.registered; // Assuming the API returns { isRegistered: true/false }
+
+    if (data.registered) {
+      setUserType(data.role);
+
+      // Fetch user details if registered
+      try {
+        const userDetails = await getUserDetails(address, data.role);
+        if (userDetails.success) {
+          setUserName(userDetails.userName);
+          setUserUsername(userDetails.userUsername);
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    }
+
+    return data.registered;
   }
   catch (error) {
-    console.error('Error checking registration:', error);
     throw error;
   }
 }
@@ -214,8 +224,7 @@ async function registerNewUser(address, userName, userType, userUsername) {
     const resp = await response.json();
 
     if (resp.success) {
-      console.log("User registered successfully:", resp);
-      return true; 
+      return true;
     }
     else {
       var errorMessage = resp.message || "Unknown error occurred";
@@ -265,18 +274,52 @@ async function getUserDetails(address,userType) {
     const data = await response.json();
     return data; // Assuming the API returns user details
   } catch (error) {
-    console.error('Error fetching user details:', error);
     throw error;
   }
   
 }
 
 async function getPostList(){
-  //  return List<Posts>
-  
+  const azureUrl = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/fetch_post?code=${AZURE_FUNCTION_KEY}`;
+
+
+
+  try {
+    const response = await fetch(azureUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Convert backend data to frontend format
+    const dataWithIds = data.map((post, index) => ({
+      ...post,
+      postID: post.post_id || post.postID || post.id || `backend-${Date.now()}-${index}`,
+      address: post.landmark || post.address || "Location not specified",
+      status: post.road_condition || post.status || "Awaiting Approval",
+      timestamp: post.uploaded_at || post.timestamp || post.created_at || new Date().toISOString(),
+      voteCount: post.vote_count || post.voteCount || 0,
+      bidStatus: post.bid_status || post.bidStatus || "",
+      price: post.price || post.amount || ""
+    }));
+
+    return dataWithIds;
+
+  } catch (error) {
+    return [];
+  }
 }
 
 
 
 
-export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails };
+export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails,getPostList };

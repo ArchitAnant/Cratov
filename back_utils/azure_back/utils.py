@@ -142,7 +142,7 @@ def add_road_condition(post_id, road_condition):
     table_client = table_service_client.get_table_client("posts")
 
     try:
-        entity = table_client.query_entities(f"PartitionKey eq '{post_id}' and RowKey eq 'metadata'")[0]
+        entity = next(table_client.query_entities(f"PartitionKey eq '{post_id}' and RowKey eq 'metadata'"))
         entity["road_condition"] = road_condition
         table_client.update_entity(entity)
         logging.info(f"Road condition for '{post_id}' updated to '{road_condition}'.")
@@ -163,7 +163,7 @@ def update_post_condition(post_id, condition):
     table_client = table_service_client.get_table_client("posts")
 
     try:
-        entity = table_client.query_entities(f"PartitionKey eq '{post_id}' and RowKey eq 'metadata'")[0]
+        entity = next(table_client.query_entities(f"PartitionKey eq '{post_id}' and RowKey eq 'metadata'"))
         entity["post_condition"] = condition
         table_client.update_entity(entity)
         logging.info(f"Post condition for '{post_id}' updated to '{condition}'.")
@@ -232,7 +232,7 @@ def fetch_all_posts():
                 grouped[pk]["coordinates"] = entity.get("coordinates", "")
                 grouped[pk]["landmark"] = entity.get("landmark", "")
                 grouped[pk]["uploaded_at"] = entity.get("uploaded_at", "1970-01-01T00:00:00")
-                grouped[pk]["road_condition"] = entity.get("post_condition", "")
+                grouped[pk]["post_condition"] = entity.get("post_condition", "")
             elif rk in ["front", "back", "left", "right"]:
                 grouped[pk]["image"][rk] = {
                     "image_id": entity.get("image_id", ""),

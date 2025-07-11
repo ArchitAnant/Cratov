@@ -5,7 +5,7 @@ import { useUpload } from "../context/UploadContext";
 import { useLogin } from "../context/LoginContext";
 import {GuideLineBar} from "../components/Action";
 import {createImageUploadPayload,uploadPostToBackend,predictPotholes,checkAcceptance} from "../helper"; // Import the helper function
-import { savePostData, fileToBase64 } from "../context/post";
+import { savePostId, addSmallPost } from "../context/post";
 import VerificationStatusCard from "../components/VerificationStatusCard";
 
 const Verify = () => {
@@ -17,7 +17,7 @@ const Verify = () => {
   const navigate = useNavigate();
   const locationState = useLocation();
   const upload  = useUpload();
-  const { userType } = useLogin();
+  const { userType, userName, userUsername, userAddress } = useLogin();
 
   // Check navigation state first, then fallback to LoginContext
   // Also check if we came from agency flow
@@ -41,17 +41,28 @@ const Verify = () => {
     setBarColor("bg-black");
     setShowResult(false);
     try {
-      console.log("Uploading images...");
-      const payload = await createImageUploadPayload(upload.images, "testuser",upload.stringLandmark,upload.location);
-      console.log("Payload created..");
+      // Use userUsername if available, otherwise fallback to userName or userAddress
+      const userId = userUsername || userName || userAddress || "anonymous_user";
+      const payload = await createImageUploadPayload(upload.images, userId, upload.stringLandmark, upload.location);
       const postid_json = await uploadPostToBackend(payload);
       setProgress(50);
       setStatus("Validating");
-      console.log("Post ID received");
       var post_id = postid_json.postID;
+      // Save post ID for later use
+      savePostId(post_id);
+
+      // Add small post to local list
+      addSmallPost({
+        postID: post_id,
+        username: userUsername || userName || "Anonymous",
+        address: upload.stringLandmark || "Location not specified",
+        status: "Processing...",
+        timestamp: new Date().toISOString(),
+        voteCount: 0
+      });
+
       const response = await predictPotholes(post_id);
-      var value = checkAcceptance(response)
-      console.log("Prediction response..");
+      var value = checkAcceptance(response);
       setProgress(100);
       setShowResult(true);
       setUploading(false);
@@ -72,16 +83,22 @@ const Verify = () => {
   };
 
   const handlePostButton = async () => {
-    // Convert images to base64
-    const base64Images = await Promise.all(upload.images.map(img => img ? fileToBase64(img) : ""));
-    // savePostData({
-    //   address: upload.stringLandmark,
-    //   images: base64Images,
-    //   userType: currentUserType
-    // });
-    upload.setImages([null,null,null,null])
+    try {
+      // Clear uploaded data from context
+      upload.setImages([null,null,null,null]);
+      upload.setStringLandmark("");
+      upload.setLocation(null);
 
-    navigate("/postdetail", { state: { userType: currentUserType } });
+      // Update session storage for proper navigation state
+      sessionStorage.setItem('lastProfileType', currentUserType);
+
+      // Navigate to home page directly
+      navigate("/", { state: { userType: currentUserType } });
+
+    } catch (error) {
+      console.error("Error in handlePostButton:", error);
+      // Just log the error, no alert message
+    }
   };
 
   // call the handlePost function when the page loads

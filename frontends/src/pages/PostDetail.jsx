@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { getPostData } from "../context/post";
+import { getPostData, savePostData } from "../context/post";
 import { useLogin } from "../context/LoginContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ActionButton, Button, ImageGallery } from "../components/Action";
+import { ActionButton, ImageGallery } from "../components/Action";
 import { Bookmark, CornerLeftUp } from "lucide-react";
 
 const PostDetail = () => {
@@ -29,9 +29,15 @@ const PostDetail = () => {
   const isAgency = currentUserType === "agency";
 
   useEffect(() => {
-    const data = getPostData();
-    if (data) setPost(data);
-  }, []);
+    // Check if post data came from navigation state first
+    if (locationState.state?.post) {
+      setPost(locationState.state.post);
+    } else {
+      // Fallback to saved post data
+      const data = getPostData();
+      if (data) setPost(data);
+    }
+  }, [locationState]);
 
   return (
     <div className="min-h-screen bg-white pt-24 pb-10 px-[86px] font-poppins">
@@ -40,14 +46,14 @@ const PostDetail = () => {
         <div className="flex-1">
           <h2 className="text-[24px] font-semibold mb-2">Pothole Report</h2>
           <p className="text-[14px] text-gray-600 mb-4">
-            {post.address || "No address provided"}
+            {post.landmark || post.address || "No address provided"}
           </p>
 
           {/* Current Status */}
           <div className="mb-4">
             <p className="text-[14px] text-gray-700">Current Status :</p>
             <p className="text-[12px] text-red-500 font-medium">
-              • Awaiting Approval
+              • {post.road_condition || post.status || "Awaiting Approval"}
             </p>
           </div>
 
@@ -64,7 +70,26 @@ const PostDetail = () => {
               // Upvote section for regular users only
               <div className="flex items-center gap-4">
                 <button
-                  onClick={() => console.log("Upvote clicked")}
+                  onClick={() => {
+                    // Save post data for BiddingDetail page
+                    const biddingData = {
+                      address: post.landmark || post.address || "No address provided",
+                      images: post.images || [],
+                      userType: currentUserType,
+                      status: post.road_condition || post.status || "Awaiting Approval",
+                      username: post.username || "Anonymous",
+                      uploaded_at: post.uploaded_at,
+                      post_id: post.post_id || post.postID
+                    };
+
+                    // Navigate to BiddingDetail page
+                    navigate("/bidding", {
+                      state: {
+                        userType: currentUserType,
+                        post: biddingData
+                      }
+                    });
+                  }}
                   className="flex items-center justify-center gap-2
                     w-[146px] h-[56px] rounded-[49px]
                     bg-[#D9D9D9] text-black
@@ -103,14 +128,16 @@ const PostDetail = () => {
                     alt="profile"
                     className="w-7 h-7 rounded-full"
                   />
-                  <span className="font-medium">ari_archit_</span>
+                  <span className="font-medium">{post.username || "Anonymous"}</span>
                 </div>
               </div>
 
               {/* Submitted On */}
               <div>
                 <p className="text-gray-500 mb-1">Submitted On :</p>
-                <p className="font-medium">27th June 2025</p>
+                <p className="font-medium">
+                  {post.uploaded_at ? new Date(post.uploaded_at).toLocaleDateString() : "Recently"}
+                </p>
               </div>
 
               {/* Pre-Repair Report */}
@@ -124,7 +151,18 @@ const PostDetail = () => {
                   <div className="mt-12">
                     <ActionButton
                       onClick={() => {
-                        console.log("Navigating to Agency-Approval page...");
+                        // Save post data for Agency Approval page
+                        savePostData({
+                          address: post.address || post.landmark || "Address not available",
+                          images: post.images || [],
+                          userType: "agency",
+                          status: post.status || post.road_condition || "Awaiting Approval",
+                          username: post.username || "ari_archit_",
+                          uploaded_at: post.uploaded_at || new Date().toISOString(),
+                          post_id: post.post_id || "unknown",
+                          coordinates: post.coordinates || { lat: "22.5726", lon: "88.3639" }
+                        });
+
                         navigate("/agency-approval", { state: { userType: "agency", post: post } });
                       }}
                       action="Verify"

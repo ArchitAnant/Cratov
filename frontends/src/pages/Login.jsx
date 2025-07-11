@@ -18,10 +18,8 @@ const MainLogin = () => {
                 console.log("User registered successfully");
                 setLoading(false);
                 setLoginState(true);
-                setUserAddress(null);
-                setUserType(null);
-                setUserName(null);
-                setUserUsername(null);
+                // Don't clear user data after successful registration
+                // Keep userAddress, userType, userName, userUsername for later use
             } else {
                 console.error("Error registering user");
                 setLoading(false);
@@ -60,16 +58,12 @@ const MainLogin = () => {
         <button onClick={async () => {
             const walletInfo = await connectWallet();
             if (walletInfo) {
-                // Do something with walletInfo.provider, walletInfo.signer, walletInfo.userAddress
-                console.log("Connected:", walletInfo.userAddress);
                 setUserAddress(walletInfo.userAddress);
-                checkAlredyRegisted(walletInfo.userAddress,setUserType).then((isRegistered) => {
+                checkAlredyRegisted(walletInfo.userAddress, setUserType, setUserName, setUserUsername).then(async (isRegistered) => {
                     if (isRegistered) {
                         setLoginState(true);
-                        console.log("User is already registered");  
                     }
                     else {
-                        console.log("User is not registered");
                         setScreenCount(1);
                     }
                 });
@@ -103,7 +97,7 @@ const MainLogin = () => {
                     return;
                 }
                 setLoading(true);
-                setUserName(userUsername.trim());
+                setUserUsername(userUsername.trim());
                 handleRegister();
                 
                 setScreenCount(4);

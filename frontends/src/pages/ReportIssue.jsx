@@ -123,7 +123,6 @@ const ReportIssue = () => {
       return;
     }
     setStringLandmark(address);
-    console.log("Landmark set to:", address);
     if (images.some((img) => img === null)) {
       alert("Please upload all 4 images.");
       return;
