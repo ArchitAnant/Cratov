@@ -4,7 +4,8 @@ import { useRef } from "react";
 import { useUpload } from "../context/UploadContext";
 import { useLogin } from "../context/LoginContext";
 import {GuideLineBar} from "../components/Action";
-import {createImageUploadPayload,uploadPostToBackend,predictPotholes,checkAcceptance} from "../helper"; // Import the helper function
+import {createImageUploadPayload,uploadPostToBackend,predictPotholes,checkAcceptance,addRoadCondition} from "../helper"; // Import the helper function
+import { savePostData, fileToBase64 } from "../context/post";
 import { savePostId, addSmallPost } from "../context/post";
 import VerificationStatusCard from "../components/VerificationStatusCard";
 
@@ -66,7 +67,11 @@ const Verify = () => {
       setProgress(100);
       setShowResult(true);
       setUploading(false);
-      if (value === 1) {
+      if (value[0] === 1) {
+        console.log("value[1] is: ", value[1]);
+        console.log("Post ID is: ", post_id);
+        upload.setRoadCondition(value[1]);
+        addRoadCondition(post_id, value[1]);
         setStatus("Accepted");
         setBarColor("bg-[#2D6100]");
       } else {

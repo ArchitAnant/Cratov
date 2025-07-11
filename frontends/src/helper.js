@@ -126,9 +126,10 @@ function checkAcceptance(response) {
 
   // accepted if there are more than 1 SVD tags or more than 2 DMG
   if (tagsDict["SVD"] > 1 || tagsDict["DMG"] > 2) {
-    return 1; // Accepted
+    const mainTag = tagsDict["SVD"] > 1 ? "Sevearly Damaged" : "Damaged";
+    return [1,mainTag]; // Accepted
   } else {
-    return 0; // Rejected
+    return [0,""]; // Rejected
   }
 }
 
@@ -158,7 +159,9 @@ async function connectWallet() {
   }
 }
 
-async function checkAlredyRegisted(address, setUserType, setUserName, setUserUsername){
+async function checkAlredyRegisted(address,setUserType){
+  
+  
   const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/checkregister?address=${address}&code=${AZURE_FUNCTION_KEY}`;
 
   try{
@@ -174,28 +177,15 @@ async function checkAlredyRegisted(address, setUserType, setUserName, setUserUse
     }
 
     const data = await response.json();
-
-    if (data.registered) {
-      setUserType(data.role);
-
-      // Fetch user details if registered
-      try {
-        const userDetails = await getUserDetails(address, data.role);
-        if (userDetails.success) {
-          setUserName(userDetails.userName);
-          setUserUsername(userDetails.userUsername);
-        }
-      } catch (error) {
-        console.error("Error fetching user details:", error);
-      }
-    }
-
-    return data.registered;
+    
+    setUserType(data.role); // Assuming the API returns { registered: true/false, role: "user"/"agency"/"contractor" }
+    return data.registered; // Assuming the API returns { isRegistered: true/false }
   }
   catch (error) {
     throw error;
   }
 }
+
 
 async function registerNewUser(address, userName, userType, userUsername) {
   // wait for 2 seconds to simulate a delay
@@ -319,7 +309,63 @@ async function getPostList(){
   }
 }
 
+async function addRoadCondition(postID, roadCondition){
+  const payload = {
+    postID: postID,
+    roadCondition: roadCondition
+  };
+
+  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/addroadcondition?code=${AZURE_FUNCTION_KEY}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+  } catch (error) {
+    console.error('Error adding road condition:', error);
+    throw error;
+  }
+
+}
+
+async function updatePostCondition(postID, roadCondition) {
+  const payload = {
+    postID: postID,
+    condition: roadCondition
+  };
+
+  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/updatepostcondition?code=${AZURE_FUNCTION_KEY}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+  } catch (error) {
+    console.error('Error updating road condition:', error);
+    throw error;
+  }
+}
 
 
 
-export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails,getPostList };
+
+export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,
+  connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails,addRoadCondition,updatePostCondition,getPostList };

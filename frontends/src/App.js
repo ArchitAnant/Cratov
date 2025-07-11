@@ -19,11 +19,11 @@ import MainLogin from "./pages/Login";
 import { useLogin } from "./context/LoginContext";
 
 function App() {
-  const { loginSuccesful } = useLogin();
+  const {loginSuccesful } = useLogin();
 
   return (
     <div className="App">
-      {loginSuccesful ? <MainBrowser /> : <MainLogin />}
+      {loginSuccesful  ? <MainBrowser /> : <MainLogin />}
     </div>
   );
 }
