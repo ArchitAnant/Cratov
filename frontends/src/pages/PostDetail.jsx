@@ -7,6 +7,7 @@ import { Bookmark, CornerLeftUp } from "lucide-react";
 import { fetchImageData } from "../helper";
 import PostPageInfoCard from "../components/PostInfoCard";
 import MapSelector from "../components/MapSelector";
+import BidStatus from "../components/BidStatus";
 
 const PostDetail = () => {
   const [post, setPost] = useState({ address: "", images: [],coordinates: { lat: 0.00, lon: 0.00} });
@@ -81,10 +82,14 @@ const PostDetail = () => {
           {/* Current Status */}
           <div className="mb-4">
             <p className="text-[16px] text-black text-opacity-50 font-medium mb-2">Current Status :</p>
-            <p className="text-[14px] text-[#9D0202] font-regular">
+            <BidStatus
+              status={post.road_condition || post.status || "Awaiting Approval"}
+            />
+
+            {/* <p className="text-[14px] text-[#9D0202] font-regular">
               • {post.road_condition || post.status || "Awaiting Approval"}
 
-            </p>
+            </p> */}
           </div>
           <div className="mt-20"></div>
 
@@ -139,6 +144,7 @@ const PostDetail = () => {
               </div>
             )}
           </div>
+
         </div>
 
         {/* Right Section */}
@@ -148,7 +154,17 @@ const PostDetail = () => {
             avatar: post.userAvatar || "https://i.ibb.co/Gt47sS0/avatar.png"
           }}
           submittedOn={post.uploaded_at ? new Date(post.uploaded_at).toLocaleDateString() : "Recently"}
-          reportStatus={post.road_condition ? `Pre-Repair Report is ${post.road_condition}` : "Pre-Repair Report is awaiting the Approval"}
+          reportStatus={post.post_condition==="On Bid" ? 
+            <button className="text-black text-[12px] underline font-medium hover:text-blue-500 animation-all duration-300"
+            onClick={() => {
+              navigate("/showReport", {
+                state: { post: post }
+              });
+            }}
+            >
+              Generate Pre-Repair Report
+            </button>
+             : "Pre-Repair Report is awaiting the Approval"}
           showBookmark={false}
           className="md:w-[30%] w-full"
           >

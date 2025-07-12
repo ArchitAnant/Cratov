@@ -6,8 +6,6 @@ from utils import * #get_image_from_blob,fetch_images,generate_post_id,upload_im
 import os
 import ast
 
-
-
 app = func.FunctionApp()
 model = ModelWrapper()
 
@@ -661,74 +659,9 @@ def fetchImages(req: func.HttpRequest) -> func.HttpResponse:
         )   
 
 
-# @app.route(route="uploadPostMetadata", auth_level=func.AuthLevel.FUNCTION)
-# def uploadPostMetadata(req: func.HttpRequest) -> func.HttpResponse:
-#     logging.info('Trigger function triggered to upload post metadata.')
-#     try:
-#         if req.method == "OPTIONS":
-#             return func.HttpResponse(
-#                 "",
-#                 status_code=204,
-#                 headers={
-#                     "Access-Control-Allow-Origin": "*",
-#                     "Access-Control-Allow-Methods": "POST, OPTIONS",
-#                     "Access-Control-Allow-Headers": "Content-Type",
-#                 },
-#             )
-        
-#         resp_json = req.get_json()
-#         if not resp_json:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Invalid request. JSON body is required."}),
-#                 status_code=400,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
-        
-#         post_id = resp_json.get("postID")
-#         lat = resp_json.get("lat")
-#         lon = resp_json.get("lon")
-#         length = resp_json.get("length")
-#         road_width = resp_json.get("roadWidth")
-#         maintenance_history = resp_json.get("maintenanceHistory")
-#         road_surface = resp_json.get("roadSurface")
-#         road_geometry = resp_json.get("roadGeometry")
-#         road_safety_features = resp_json.get("roadSafetyFeatures")
-#         PCI = resp_json.get("PCI")
-#         RQI = resp_json.get("RQI")
-#         BBD_deflection = resp_json.get("BBD_deflection")
-
-#         if not post_id or not lat or not lon or not length or not road_width or not maintenance_history or not road_surface or not road_geometry or not road_safety_features or not PCI or not RQI or not BBD_deflection:
-#             return func.HttpResponse(
-#                 json.dumps({"error": "Invalid request. All fields are required."}),
-#                 status_code=400,
-#                 mimetype="application/json",
-#                 headers={"Access-Control-Allow-Origin": "*"}
-#             )
-
-#         upload_static_metadata(post_id, lat, lon, length, road_width,
-#                                maintenance_history, road_surface, 
-#                                road_geometry, road_safety_features,
-#                                PCI, RQI, BBD_deflection)
-
-#         return func.HttpResponse(
-#             json.dumps({"message": "Post metadata uploaded successfully."}),
-#             status_code=200,
-#             mimetype="application/json",
-#             headers={"Access-Control-Allow-Origin": "*"}
-#         )
-    
-#     except Exception as e:
-#         return func.HttpResponse(
-#             json.dumps({"error": f"Internal Server Error: {str(e)}"}),
-#             status_code=500,
-#             mimetype="application/json",
-#             headers={"Access-Control-Allow-Origin": "*"}
-#         )
-
-# @app.route(route="generateReport", auth_level=func.AuthLevel.FUNCTION)
-# def generateReport(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Trigger function triggered to generate report.')
+@app.route(route="uploadPostMetadata", auth_level=func.AuthLevel.FUNCTION)
+def uploadPostMetadata(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Trigger function triggered to upload post metadata.')
     try:
         if req.method == "OPTIONS":
             return func.HttpResponse(
@@ -750,22 +683,91 @@ def fetchImages(req: func.HttpRequest) -> func.HttpResponse:
                 headers={"Access-Control-Allow-Origin": "*"}
             )
         
-        coordinates = resp_json.get("coordinates")
-        metadata_report = resp_json.get("metadataReport")
+        post_id = resp_json.get("postID")
+        lat = resp_json.get("lat")
+        lon = resp_json.get("lon")
+        road_dim = resp_json.get("roadDimensions")
+        length = road_dim.split(",")[0] if road_dim else None
+        road_width = road_dim.split(",")[1] if road_dim and len(road_dim.split(",")) > 1 else None
+        maintenance_history = resp_json.get("maintenanceHistory")
+        road_surface = resp_json.get("roadSurface")
+        road_geometry = resp_json.get("roadGeometry")
+        road_safety_features = resp_json.get("safetyFeature")
+        PCI = resp_json.get("pci")
+        RQI = resp_json.get("rqi")
+        BBD_deflection = resp_json.get("bbd")
+        max_bid = resp_json.get("maxBid")
 
-        if not coordinates or not metadata_report:
+        if not post_id or not lat or not lon or not length or not road_width or not maintenance_history or not road_surface or not road_geometry or not road_safety_features or not PCI or not RQI or not BBD_deflection:
             return func.HttpResponse(
-                json.dumps({"error": "Invalid request. 'coordinates' and 'metadataReport' fields are required."}),
+                json.dumps({"error": "Invalid request. All fields are required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+
+        upload_static_metadata(post_id, lat, lon, length, road_width,
+                               maintenance_history, road_surface, 
+                               road_geometry, road_safety_features,
+                               PCI, RQI, BBD_deflection)
+
+        return func.HttpResponse(
+            json.dumps({"message": "Post metadata uploaded successfully."}),
+            status_code=200,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
+    
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
+
+@app.route(route="generateReport", auth_level=func.AuthLevel.FUNCTION)
+def generateReport(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Trigger function triggered to generate report.')
+    try:
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
+        
+        postid = req.params.get("postid")
+        if not postid:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. JSON body is required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        
+        # coordinates = resp_json.get("coordinates")
+        # metadata_report = resp_json.get("metadataReport")
+
+        if not postid:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. postid fields are required."}),
                 status_code=400,
                 mimetype="application/json",
                 headers={"Access-Control-Allow-Origin": "*"}
             )
         
         # convert metadata_report to dict from string dict
-        converted_dict = ast.literal_eval(metadata_report)
+        # converted_dict = ast.literal_eval(metadata_report)
+        logging.info(f"Generating report for post ID: {postid}")
 
 
-        report = generate_report(coordinates, converted_dict)
+        report = generate_report(postid)
+        logging.log(logging.INFO, f"Report generated for post ID")
 
         return func.HttpResponse(
             json.dumps({"report_md":report}),

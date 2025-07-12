@@ -29,6 +29,7 @@ const PostImageGallery = ({
       style={{ width: imageSize, height: imageSize }}
       onClick={() => handleImageClick(img, index)}
     >
+      
       <img 
         src={img} 
         alt={`Post image ${index + 1}`} 
@@ -85,10 +86,10 @@ const PostImageGallery = ({
       {/* Modal for image preview */}
       {selectedImage && showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="relative max-w-4xl max-h-4xl p-4">
+          <div className="relative max-w-[90vw] max-h-[90vh] p-4 overflow-auto">
             <button
               onClick={closeModal}
-              className="absolute -top-2 -right-2 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
+              className="absolute top-2 right-2 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
             >
               <X size={20} />
             </button>

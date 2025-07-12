@@ -9,7 +9,7 @@ load_dotenv()
 
 MAPMYINDIA_KEY = os.getenv("MAPMYINDIA_KEY")
 
-def get_population_density_from_tif(lat, lon, tif_path="population_map.tif"):
+def get_population_density_from_tif(lat, lon, tif_path="report/population_map.tif"):
     try:
         with rasterio.open(tif_path) as src:
             if src.crs.to_epsg() != 4326:

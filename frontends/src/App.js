@@ -16,6 +16,7 @@ import TopBar from "./components/TopBar";
 import AgencyApproval from "./pages/AgencyApproval";
 import Footer from "./components/Footer";
 import MainLogin from "./pages/Login";
+import ReportMarkdown from "./pages/Report";
 import { useLogin } from "./context/LoginContext";
 
 function App() {
@@ -46,6 +47,7 @@ const MainBrowser = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         {/* <Route path="/agency-profile" element={<AgencyProfile />} /> */}
+        <Route path="/showReport" element={<ReportMarkdown />} />
         <Route path="/agency-approval" element={<AgencyApproval />} />
       </Routes>
       <Footer />

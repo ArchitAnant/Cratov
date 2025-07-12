@@ -13,10 +13,10 @@ const TopBar = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // If the spacer is not visible, it means something is below the TopBar
+        // If the spacer is not visible, it means something is below the TopBars
         setHasShadow(!entry.isIntersecting);
       },
-      { rootMargin: "0px", threshold: 0 }
+      { root: null, rootMargin: "0px", threshold: 1.0 }
     );
 
     if (spacerRef.current) {
@@ -31,9 +31,9 @@ const TopBar = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full bg-white border-gray-200 transition-shadow duration-300 ${
-          hasShadow ? "shadow-md" : ""
-        }`}
+        className={`fixed top-0 left-0 w-full bg-white border-gray-200 transition-shadow duration-300 z-30 ${
+  hasShadow ? "shadow-md" : "shadow-none"
+}`}
       >
         <div className="flex flex-row items-center justify-between px-10 py-6">
           <Link
@@ -94,7 +94,7 @@ const TopBar = () => {
       </header>
 
       {/* Spacer right below the header */}
-      <div ref={spacerRef} className="h-[1px] w-full mt-[84px]" />
+      <div ref={spacerRef} className="h-[60px] w-full" />
     </>
   );
 };

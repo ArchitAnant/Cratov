@@ -412,7 +412,62 @@ async function fetchImageData(postID) {
   }
 }
 
+async function uploadApprovalData(payload) {
+  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/uploadpostmetadata?code=${AZURE_FUNCTION_KEY}`
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    console.log(response)
+    if (response.status === 200) {
+      return { success: true }; 
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error uploading approval data:', error);
+    throw error;
+  }
+  
+}
+
+async function getReport(postid) {
+  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/generatereport?postid=${postid}&code=${AZURE_FUNCTION_KEY}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    // get the report_md from the response
+    const data = await response.json();
+    if (!data || !data.report_md) {
+      throw new Error("No report data found");
+    } 
+    return data; // Assuming the API returns { report_md: "..." }
+  } catch (error) {
+    console.error('Error fetching report:', error);
+    throw error;
+  }
+  
+}
+
 
 
 export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,
-  connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails,addRoadCondition,updatePostCondition,getPostList,fetchImageData };
+  connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails,addRoadCondition,updatePostCondition,getPostList,fetchImageData,
+uploadApprovalData ,getReport};

@@ -8,3 +8,6 @@ torchaudio
 azure-functions
 azure-data-tables
 azure-storage-blob
+osmnx
+rasterio
+openai

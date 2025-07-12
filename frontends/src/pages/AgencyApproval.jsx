@@ -7,14 +7,14 @@ import ExpandableFormSection from "../components/ExpandableFormSection";
 import PostInfoCard from "../components/PostInfoCard";
 import PostImageGallery from "../components/PostImageGallery";
 import MapSelector from "../components/MapSelector";
-import { updatePostCondition } from "../helper";
+import { updatePostCondition,uploadApprovalData } from "../helper";
 
 const AgencyApproval = () => {
   // Boolean variables for user type based UI flow
   const { userType } = useLogin();
   const location = useLocation();
   const navigate = useNavigate();
-  
+  const [loading,seLoading] = useState(false);
   const isAgency = userType === "agency" || location.state?.userType === "agency";
   const isUser = userType === "user" || location.state?.userType === "user";
   const isContractor = userType === "contractor" || location.state?.userType === "contractor";
@@ -159,26 +159,44 @@ const AgencyApproval = () => {
 
   const handleConfirm = () => {
     if (isFormComplete()) {
-      updatePostCondition(postData.postid, "On Bid")
-      const savedPostData = getPostData();
-      if (savedPostData) {
-        savePostData({
-          ...savedPostData,
-          status: "On Bid",
-          road_condition: "",
-          agency_approved: true,
-          stage: 1 // Set to stage 1 (Approved + On Bid)
-        });
+      seLoading(true);
+      // console.log(formData)
+      const postid = postData.postid || "default-post-id";
+      const payload = {
+        postID : postid,
+        lat : postData.coordinates.lat,
+        lon : postData.coordinates.lon,
+        ...formData
       }
+      uploadApprovalData(payload).then((response) => {
+        if (response.success) {
+          updatePostCondition(postid, "On Bid")
+        const savedPostData = getPostData();
+        if (savedPostData) {
+          savePostData({
+            ...savedPostData,
+            status: "On Bid",
+            road_condition: "",
+            agency_approved: true,
+            stage: 1 // Set to stage 1 (Approved + On Bid)
+          });
+        }
+        seLoading(false);
 
-      // Navigate to BiddingDetail page
-      navigate("/bidding", {
-        state: {
-          userType: "agency",
-          fromAgencyApproval: true,
-          stage: 1
+        // Navigate to BiddingDetail page
+        navigate("/home", {
+          state: {
+            userType: "agency",
+            fromAgencyApproval: true,
+            stage: 1
+          }
+        });
+        } else {
+          console.error("Failed to upload approval data:", response.error);
+          seLoading(false);
         }
       });
+      
     }
   };
 
@@ -268,7 +286,7 @@ const AgencyApproval = () => {
             month: 'long',
             year: 'numeric'
           })}
-          reportStatus={isAgency ? "Pre-Repair Report :" : "Pre-Repair Report is awaiting the Approval"}
+          reportStatus={isAgency ? "" : "Pre-Repair Report is awaiting the Approval"}
           showBookmark={true}
         >
           {/* Conditional Action Button based on user type */}
@@ -276,16 +294,14 @@ const AgencyApproval = () => {
             <ActionButton
               onClick={handleConfirm}
               action="Confirm"
-              ifDisable={!isFormComplete()}
+              ifDisable={!isFormComplete()||loading}
             />
           )}
 
           {isContractor && (
-            <ActionButton
-              onClick={handleConfirm}
-              action="Confirm"
-              ifDisable={!isFormComplete()}
-            />
+            <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded-lg">
+              This page is for agency/contractor review only.
+            </div>
           )}
           
           {isUser && (

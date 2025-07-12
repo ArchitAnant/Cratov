@@ -1,6 +1,8 @@
 import os
 from openai import AzureOpenAI
 from dotenv import load_dotenv
+import json
+import logging
 
 load_dotenv()
 class OpenAIChat:
@@ -25,11 +27,11 @@ class OpenAIChat:
                         Firstly you well report the Read Features point wise straight like a key value pair.
                         Elaborate each subpoint in Road Assessment Data with 2 lines but for the fields having no values just write no data provided.
                         Then, provide a detailed analysis of the Demographic Data.
-                        Finally, summarize the entire report in a concise manner.""",
+                        Finally, summarize the entire report in a concise manner. and make the response in a good markdown format.""",
                     },
                     {
                         "role": "user",
-                        "content": road_context,
+                        "content": json.dumps(road_context),
                     }
                 ],
                 max_completion_tokens=max_completion_tokens,

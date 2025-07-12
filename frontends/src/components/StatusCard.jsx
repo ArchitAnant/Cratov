@@ -1,5 +1,6 @@
 import { Bookmark, CornerLeftUp } from "lucide-react";
 import { ActionButton } from "./Action";
+import BidStatus from "./BidStatus";
 
 const StatusCard = ({
   username,
@@ -38,12 +39,13 @@ const StatusCard = ({
 
       {/* Status */}
       <div className="flex flex-col gap-1">
-        <p className={`text-xs font-medium ${isApproved ? "text-green-600" : "text-red-500"}`}>
+        {/* <p className={`text-xs font-medium ${isApproved ? "text-green-600" : "text-red-500"}`}>
           {status}
-        </p>
-        {bidStatus && (
+        </p> */}
+        {/* {bidStatus && (
           <p className="text-xs font-medium text-orange-600">{bidStatus}</p>
-        )}
+        )} */}
+        <BidStatus status={status}  />
       </div>
 
       {/* Bottom Section - Show for both user and agency */}

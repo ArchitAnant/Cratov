@@ -35,6 +35,7 @@ const MapSelector = ({ location, onLocationSelect }) => (
     className="h-[250px] w-[800px] mb-8 rounded-[21px]"
     center={[location.lat, location.lon]}
     zoom={13}
+    style={{ zIndex: 0 }}
   >
     <TileLayer
       attribution='&copy; OpenStreetMap contributors'
