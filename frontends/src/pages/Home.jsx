@@ -49,6 +49,7 @@ const Home = () => {
               className="flex-grow font-regular ps-5 py-2 rounded-full focus:outline-none focus:border-2 focus:border-blue-600 transition-border duration-300 bg-black bg-opacity-5 h-[55px] text-[13px]"
             />
           <div className="ml-5 p-[2px] rounded-full ">
+<<<<<<< HEAD
               <Button
                 variant="primary"
                 className="rounded-full w-[48px] h-[48px] p-0"
@@ -56,6 +57,12 @@ const Home = () => {
               >
                 <ArrowRight size={20} />
               </Button>
+=======
+              <button className="bg-black rounded-full w-[48px] h-[48px] flex items-center justify-center hover:bg-gray-600 transition-colors duration-300">
+                {/* <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent text-lg font-bold">→</span> */}
+                <ArrowRight size={20} className="text-white" />
+              </button>
+>>>>>>> f74af443c877211a8ed44a59b95505e8813fc4b7
             </div>
         </div>
         
@@ -68,6 +75,7 @@ const Home = () => {
     <button className="font-medium text-black border-b-2 border-black">Recent</button>
     <button className="text-gray-500">Trending</button>
   </div>
+<<<<<<< HEAD
   {/* Posts Container */}
   {loading ? (
     <div className="text-center py-8">
@@ -114,6 +122,19 @@ const Home = () => {
       <p className="text-gray-500">No posts available. Be the first to report a pothole!</p>
     </div>
   )}
+=======
+  <StatusCard 
+  username={"ari_archit_"} 
+  time={"2 days ago"} 
+  address={"48, Thakurpukur, Bibirhat - Bakhrahat - Raipur Rd"}
+    status={"Awaiting Approval"}
+    bidStatus={""}
+    voteCount={56}
+    price={""}
+    ></StatusCard>
+
+  {/* Cards Container */}
+>>>>>>> f74af443c877211a8ed44a59b95505e8813fc4b7
 
 </div>
     </div>

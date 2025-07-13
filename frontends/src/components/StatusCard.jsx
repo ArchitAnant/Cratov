@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 import { Bookmark, CornerLeftUp } from "lucide-react";
 import { ActionButton } from "./Action";
 import BidStatus from "./BidStatus";
 import { formatIndianNumber } from "../helper";
 
+=======
+import { Bookmark, CornerLeftUp, ArrowRight } from "lucide-react";
+import {ActionButton} from "./Action"; // Assuming you have an ActionButton component
+>>>>>>> f74af443c877211a8ed44a59b95505e8813fc4b7
 
 const StatusCard = ({
   username,
@@ -19,7 +24,15 @@ const StatusCard = ({
   const isApproved = status === "Approved";
 
   return (
+<<<<<<< HEAD
     <div className="bg-black bg-opacity-[0.03] rounded-[50px] w-[338px] h-[326px] flex flex-col justify-between pt-9 px-9 pb-5 font-poppins">
+=======
+    <div
+      className="bg-black bg-opacity-[0.03] rounded-[50px]
+      w-[338px] h-[326px] flex flex-col justify-between 
+      pt-9 px-9 pb-5 font-poppins ml-6"
+    >
+>>>>>>> f74af443c877211a8ed44a59b95505e8813fc4b7
       {/* Header */}
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-2">

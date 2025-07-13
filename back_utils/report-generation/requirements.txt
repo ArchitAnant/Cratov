@@ -1,6 +1,0 @@
-markdown2
-openai
-python-dotenv
-rasterio
-Requests
-weasyprint

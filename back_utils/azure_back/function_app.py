@@ -197,7 +197,11 @@ def upload_post(req: func.HttpRequest) -> func.HttpResponse:
             else:
                 logging.log(logging.ERROR, f"Failed to upload image {role[idx]} for post {post_id}")
 
+<<<<<<< HEAD
         upload_post_to_table(post_id, user_id, landmark, coordinates, image_dict)
+=======
+        upload_post_to_table(post_id, landmark, coordinates, image_dict)
+>>>>>>> f74af443c877211a8ed44a59b95505e8813fc4b7
 
 
         return func.HttpResponse(
@@ -216,6 +220,7 @@ def upload_post(req: func.HttpRequest) -> func.HttpResponse:
                 headers={"Access-Control-Allow-Origin": "*"}
             )
     
+<<<<<<< HEAD
     
 @app.route(route="fetch_post", auth_level=func.AuthLevel.FUNCTION)
 def fetch_posts(req: func.HttpRequest) -> func.HttpResponse:
@@ -743,6 +748,239 @@ def uploadPostMetadata(req: func.HttpRequest) -> func.HttpResponse:
 
 @app.route(route="generateReport", auth_level=func.AuthLevel.FUNCTION)
 def generateReport(req: func.HttpRequest) -> func.HttpResponse:
+=======
+# @app.route(route="addRoadCondition", auth_level=func.AuthLevel.FUNCTION)
+# def addRoadCondition(req : func.HttpRequest) -> func.HttpResponse:
+#     logging.info('Trigger function triggered to add road condition.')
+#     try:
+#         if req.method == "OPTIONS":
+#             return func.HttpResponse(
+#                 "",
+#                 status_code=204,
+#                 headers={
+#                     "Access-Control-Allow-Origin": "*",
+#                     "Access-Control-Allow-Methods": "POST, OPTIONS",
+#                     "Access-Control-Allow-Headers": "Content-Type",
+#                 },
+#             )
+        
+#         resp_json = req.get_json()
+#         if not resp_json:
+#             return func.HttpResponse(
+#                 json.dumps({"error": "Invalid request. JSON body is required."}),
+#                 status_code=400,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+        
+#         post_id = resp_json.get("postID")
+#         road_condition = resp_json.get("roadCondition")
+
+#         if not post_id or not road_condition:
+#             return func.HttpResponse(
+#                 json.dumps({"error": "Invalid request. 'postID' and 'roadCondition' fields are required."}),
+#                 status_code=400,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+
+#         if add_road_condition(post_id, road_condition):
+#             return func.HttpResponse(
+#                 json.dumps({"message": "Road condition updated successfully."}),
+#                 status_code=200,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+#         else:
+#             return func.HttpResponse(
+#                 json.dumps({"error": "Failed to update road condition."}),
+#                 status_code=500,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+    
+#     except Exception as e:
+#         return func.HttpResponse(
+#             json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+#             status_code=500,
+#             mimetype="application/json",
+#             headers={"Access-Control-Allow-Origin": "*"}
+#         )
+    
+# @app.route(route="updatePostCondition", auth_level=func.AuthLevel.FUNCTION)
+# def updatePostCondition(req: func.HttpRequest) -> func.HttpResponse:
+#     logging.info('Trigger function triggered to update post condition.')
+#     try:
+#         if req.method == "OPTIONS":
+#             return func.HttpResponse(
+#                 "",
+#                 status_code=204,
+#                 headers={
+#                     "Access-Control-Allow-Origin": "*",
+#                     "Access-Control-Allow-Methods": "POST, OPTIONS",
+#                     "Access-Control-Allow-Headers": "Content-Type",
+#                 },
+#             )
+        
+#         resp_json = req.get_json()
+#         if not resp_json:
+#             return func.HttpResponse(
+#                 json.dumps({"error": "Invalid request. JSON body is required."}),
+#                 status_code=400,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+        
+#         post_id = resp_json.get("postID")
+#         condition = resp_json.get("condition")
+
+#         if not post_id or not condition:
+#             return func.HttpResponse(
+#                 json.dumps({"error": "Invalid request. 'postID' and 'condition' fields are required."}),
+#                 status_code=400,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+
+#         if update_post_condition(post_id, condition):
+#             return func.HttpResponse(
+#                 json.dumps({"message": "Post condition updated successfully."}),
+#                 status_code=200,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+#         else:
+#             return func.HttpResponse(
+#                 json.dumps({"error": "Failed to update post condition."}),
+#                 status_code=500,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+    
+#     except Exception as e:
+#         return func.HttpResponse(
+#             json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+#             status_code=500,
+#             mimetype="application/json",
+#             headers={"Access-Control-Allow-Origin": "*"}
+#         )
+    
+# @app.route(route="fetchPost", auth_level=func.AuthLevel.FUNCTION)
+# def fetchPost(req: func.HttpRequest) -> func.HttpResponse:
+#     logging.info('Trigger function triggered to fetch post.')
+#     try:
+#         if req.method == "OPTIONS":
+#             return func.HttpResponse(
+#                 "",
+#                 status_code=204,
+#                 headers={
+#                     "Access-Control-Allow-Origin": "*",
+#                     "Access-Control-Allow-Methods": "GET, OPTIONS",
+#                     "Access-Control-Allow-Headers": "Content-Type",
+#                 },
+#             )
+        
+#         post_id = req.params.get('postid')
+#         if not post_id:
+#             return func.HttpResponse(
+#                 json.dumps({"error": "Invalid request. 'postid' field is required."}),
+#                 status_code=400,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+
+#         resp = fetch_post(post_id)
+#         if resp:
+#             return func.HttpResponse(
+#                 json.dumps(resp),
+#                 status_code=200,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+#         else:
+#             return func.HttpResponse(
+#                 json.dumps({"error": "Post not found."}),
+#                 status_code=404,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+    
+#     except Exception as e:
+#         return func.HttpResponse(
+#             json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+#             status_code=500,
+#             mimetype="application/json",
+#             headers={"Access-Control-Allow-Origin": "*"}
+#         )
+
+# @app.route(route="uploadPostMetadata", auth_level=func.AuthLevel.FUNCTION)
+# def uploadPostMetadata(req: func.HttpRequest) -> func.HttpResponse:
+#     logging.info('Trigger function triggered to upload post metadata.')
+#     try:
+#         if req.method == "OPTIONS":
+#             return func.HttpResponse(
+#                 "",
+#                 status_code=204,
+#                 headers={
+#                     "Access-Control-Allow-Origin": "*",
+#                     "Access-Control-Allow-Methods": "POST, OPTIONS",
+#                     "Access-Control-Allow-Headers": "Content-Type",
+#                 },
+#             )
+        
+#         resp_json = req.get_json()
+#         if not resp_json:
+#             return func.HttpResponse(
+#                 json.dumps({"error": "Invalid request. JSON body is required."}),
+#                 status_code=400,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+        
+#         post_id = resp_json.get("postID")
+#         lat = resp_json.get("lat")
+#         lon = resp_json.get("lon")
+#         length = resp_json.get("length")
+#         road_width = resp_json.get("roadWidth")
+#         maintenance_history = resp_json.get("maintenanceHistory")
+#         road_surface = resp_json.get("roadSurface")
+#         road_geometry = resp_json.get("roadGeometry")
+#         road_safety_features = resp_json.get("roadSafetyFeatures")
+#         PCI = resp_json.get("PCI")
+#         RQI = resp_json.get("RQI")
+#         BBD_deflection = resp_json.get("BBD_deflection")
+
+#         if not post_id or not lat or not lon or not length or not road_width or not maintenance_history or not road_surface or not road_geometry or not road_safety_features or not PCI or not RQI or not BBD_deflection:
+#             return func.HttpResponse(
+#                 json.dumps({"error": "Invalid request. All fields are required."}),
+#                 status_code=400,
+#                 mimetype="application/json",
+#                 headers={"Access-Control-Allow-Origin": "*"}
+#             )
+
+#         upload_static_metadata(post_id, lat, lon, length, road_width,
+#                                maintenance_history, road_surface, 
+#                                road_geometry, road_safety_features,
+#                                PCI, RQI, BBD_deflection)
+
+#         return func.HttpResponse(
+#             json.dumps({"message": "Post metadata uploaded successfully."}),
+#             status_code=200,
+#             mimetype="application/json",
+#             headers={"Access-Control-Allow-Origin": "*"}
+#         )
+    
+#     except Exception as e:
+#         return func.HttpResponse(
+#             json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+#             status_code=500,
+#             mimetype="application/json",
+#             headers={"Access-Control-Allow-Origin": "*"}
+#         )
+
+# @app.route(route="generateReport", auth_level=func.AuthLevel.FUNCTION)
+# def generateReport(req: func.HttpRequest) -> func.HttpResponse:
+>>>>>>> f74af443c877211a8ed44a59b95505e8813fc4b7
     logging.info('Trigger function triggered to generate report.')
     try:
         if req.method == "OPTIONS":
@@ -756,8 +994,13 @@ def generateReport(req: func.HttpRequest) -> func.HttpResponse:
                 },
             )
         
+<<<<<<< HEAD
         postid = req.params.get("postid")
         if not postid:
+=======
+        resp_json = req.get_json()
+        if not resp_json:
+>>>>>>> f74af443c877211a8ed44a59b95505e8813fc4b7
             return func.HttpResponse(
                 json.dumps({"error": "Invalid request. JSON body is required."}),
                 status_code=400,
@@ -765,24 +1008,40 @@ def generateReport(req: func.HttpRequest) -> func.HttpResponse:
                 headers={"Access-Control-Allow-Origin": "*"}
             )
         
+<<<<<<< HEAD
         # coordinates = resp_json.get("coordinates")
         # metadata_report = resp_json.get("metadataReport")
 
         if not postid:
             return func.HttpResponse(
                 json.dumps({"error": "Invalid request. postid fields are required."}),
+=======
+        coordinates = resp_json.get("coordinates")
+        metadata_report = resp_json.get("metadataReport")
+
+        if not coordinates or not metadata_report:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. 'coordinates' and 'metadataReport' fields are required."}),
+>>>>>>> f74af443c877211a8ed44a59b95505e8813fc4b7
                 status_code=400,
                 mimetype="application/json",
                 headers={"Access-Control-Allow-Origin": "*"}
             )
         
         # convert metadata_report to dict from string dict
+<<<<<<< HEAD
         # converted_dict = ast.literal_eval(metadata_report)
         logging.info(f"Generating report for post ID: {postid}")
 
 
         report = generate_report(postid)
         logging.log(logging.INFO, f"Report generated for post ID")
+=======
+        converted_dict = ast.literal_eval(metadata_report)
+
+
+        report = generate_report(coordinates, converted_dict)
+>>>>>>> f74af443c877211a8ed44a59b95505e8813fc4b7
 
         return func.HttpResponse(
             json.dumps({"report_md":report}),
@@ -797,5 +1056,9 @@ def generateReport(req: func.HttpRequest) -> func.HttpResponse:
             status_code=500,
             mimetype="application/json",
             headers={"Access-Control-Allow-Origin": "*"}
+<<<<<<< HEAD
         )
 
+=======
+        )
+>>>>>>> f74af443c877211a8ed44a59b95505e8813fc4b7
