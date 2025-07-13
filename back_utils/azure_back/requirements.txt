@@ -11,3 +11,4 @@ azure-storage-blob
 osmnx
 rasterio
 openai
+tiktoken

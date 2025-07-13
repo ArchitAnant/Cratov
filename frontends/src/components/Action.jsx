@@ -181,6 +181,7 @@ export const GuideLineBar = ({onActionButtonClick,actionButtonText,buttonDisable
             <li>Add the location properly</li>
             <li>Make sure the images are clear and show the entire potholes</li>
             <li>You need to upload all 4 images.</li>
+            <li>All Images should be in .jpg or .jpeg format.</li>
           </ul>
         </div>
 

@@ -8,6 +8,7 @@ import ast
 
 app = func.FunctionApp()
 model = ModelWrapper()
+os.makedirs("/tmp/tiktoken_cache", exist_ok=True)
 
 @app.route(route="health", auth_level=func.AuthLevel.ANONYMOUS)
 def health_check(req: func.HttpRequest) -> func.HttpResponse:

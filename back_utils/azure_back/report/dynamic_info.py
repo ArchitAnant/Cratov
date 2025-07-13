@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
 import osmnx as ox
-
+# Turn off OSMNX's global caching
+ox.settings.use_cache = False
+ox.settings.cache_folder = "/tmp/osmnx_cache"
 
 load_dotenv()
 
