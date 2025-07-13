@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Bookmark } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useRef } from "react";
 import { useUpload } from "../context/UploadContext";
-import GuideLineBar from "../components/Action";
-import {createImageUploadPayload,uploadImagesToBackend,predictPotholes,checkAcceptance} from "../helper"; // Import the helper function
+import { useLogin } from "../context/LoginContext";
+import {GuideLineBar} from "../components/Action";
+import {createImageUploadPayload,uploadPostToBackend,predictPotholes,checkAcceptance,addRoadCondition} from "../helper"; // Import the helper function
+import { savePostData, fileToBase64 } from "../context/post";
+import { savePostId, addSmallPost } from "../context/post";
+import VerificationStatusCard from "../components/VerificationStatusCard";
 
 const Verify = () => {
   const [progress, setProgress] = useState(10);
@@ -13,10 +15,24 @@ const Verify = () => {
   const [status, setStatus] = useState("Waiting");
   const [barColor, setBarColor] = useState("bg-black");
   const [showResult, setShowResult] = useState(false);
-  const fileInputRef = useRef();
   const navigate = useNavigate();
-  const images  = useUpload();
+  const locationState = useLocation();
+  const upload  = useUpload();
+  const { userType, userName, userUsername, userAddress } = useLogin();
 
+  // Check navigation state first, then fallback to LoginContext
+  // Also check if we came from agency flow
+  const referrer = document.referrer;
+  const cameFromAgencyFlow = referrer.includes('/agency-profile') || locationState.state?.userType === "agency";
+
+  let currentUserType = locationState.state?.userType || userType;
+
+  // Override if we came from agency flow
+  if (cameFromAgencyFlow && currentUserType !== "agency") {
+    currentUserType = "agency";
+  }
+
+  const isAgency = currentUserType === "agency";
 
   const handlePost = async () => {
 
@@ -26,21 +42,34 @@ const Verify = () => {
     setBarColor("bg-black");
     setShowResult(false);
     try {
-      console.log("Uploading images...");
-      const payload = await createImageUploadPayload(images.images, "testuser");
-      console.log("Payload created..");
-      const postid_json = await uploadImagesToBackend(payload);
+      // Use userUsername if available, otherwise fallback to userName or userAddress
+      const userId = userUsername || userName || userAddress || "anonymous_user";
+      const payload = await createImageUploadPayload(upload.images, userId, upload.stringLandmark, upload.location);
+      const postid_json = await uploadPostToBackend(payload);
       setProgress(50);
       setStatus("Validating");
-      console.log("Post ID received");
       var post_id = postid_json.postID;
+      // Save post ID for later use
+      savePostId(post_id);
+
+      // Add small post to local list
+      addSmallPost({
+        postID: post_id,
+        username: userUsername || userName || "Anonymous",
+        address: upload.stringLandmark || "Location not specified",
+        status: "Processing...",
+        timestamp: new Date().toISOString(),
+        voteCount: 0
+      });
+
       const response = await predictPotholes(post_id);
-      var value = checkAcceptance(response)
-      console.log("Prediction response..");
+      var value = checkAcceptance(response);
       setProgress(100);
       setShowResult(true);
       setUploading(false);
-      if (value === 1) {
+      if (value[0] === 1) {
+        upload.setRoadCondition(value[1]);
+        addRoadCondition(post_id, value[1]);
         setStatus("Accepted");
         setBarColor("bg-[#2D6100]");
       } else {
@@ -56,62 +85,70 @@ const Verify = () => {
     }
   };
 
+  const handlePostButton = async () => {
+    try {
+      // Clear uploaded data from context
+      upload.setImages([null,null,null,null]);
+      upload.setStringLandmark("");
+      upload.setLocation(null);
+
+      // Update session storage for proper navigation state
+      sessionStorage.setItem('lastProfileType', currentUserType);
+
+      // Navigate to home page directly
+      navigate("/", { state: { userType: currentUserType } });
+
+    } catch (error) {
+      console.error("Error in handlePostButton:", error);
+      // Just log the error, no alert message
+    }
+  };
+
   // call the handlePost function when the page loads
 const hasPostedRef = useRef(false);
 
 useEffect(() => {
-  if (!hasPostedRef.current && images.images.length > 0) {
+  if (!hasPostedRef.current && upload.images.length > 0) {
     handlePost();
     hasPostedRef.current = true;
-  } else if (!hasPostedRef.current && images.images.length === 0) {
+  } else if (!hasPostedRef.current && upload.images.length === 0) {
     navigate("/reportissue");
     hasPostedRef.current = true;
   }
-}, [images.images, navigate]);
+}, [upload.images, navigate]);
 
   return (
-    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-24 pb-10 min-h-screen bg-white">
+    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-10 pb-10 min-h-screen bg-white">
       {/* Left Section */}
       <div className="flex-1 pl-[86px]">
-        <h2 className="text-[30px] font-medium mb-8 leading-[100%] text-black">
-          Report A Pothole
-        </h2>
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-[18px] opacity-80">{status}</p>
-          <Bookmark size={20} className="text-black" />
-        </div>
-        {/* Upload Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-7">
-          <div
-            className={`${barColor} h-7 rounded-full transition-all duration-500`}
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-        {/* Show result text if upload is done */}
-        {showResult && (
-          <div className="mt-10 text-lg ">
-            {status === "Accepted" && 
-            <div>
-              <span className="text-[#2D6100] font-medium text-sm">Accepted</span>
-              <h1 className="opacity-50">The post will be verified by Officials.</h1>
-              <h1 className="opacity-50">After the Officials have verified the post it will be up for bidding.</h1>
-            </div>
-            }
-            {status === "Rejected" && 
-            <div>
-              <span className="text-[#9D0202] font-medium text-sm">Rejected</span>
-              <h1 className="opacity-50">Make sure the images contain a pothole.</h1>
-            </div>
-            }
-            {status.startsWith("Error") && <span className="text-red-600">{status}</span>}
-          </div>
-        )}
-
+        <VerificationStatusCard
+          title={isAgency ? "Verify Pothole Report" : "Report A Pothole"}
+          status={status}
+          barColor={barColor}
+          progress={progress}
+          showResult={showResult}
+          resultMessages={showResult && (
+            <>
+              {status === "Accepted" && (
+                <div>
+                  <span className="text-[#2D6100] font-medium text-sm">Accepted</span>
+                  <h1 className="opacity-50">The post will be verified by Officials.</h1>
+                  <h1 className="opacity-50">After the Officials have verified the post it will be up for bidding.</h1>
+                </div>
+              )}
+              {status === "Rejected" && (
+                <div>
+                  <span className="text-[#9D0202] font-medium text-sm">Rejected</span>
+                  <h1 className="opacity-50">Make sure the images contain a pothole.</h1>
+                </div>
+              )}
+              {status.startsWith("Error") && <span className="text-red-600">{status}</span>}
+            </>
+          )}
+        />
       </div>
       {/* Right Section */}
-      <GuideLineBar  actionButtonText={"Post"} buttonDisable={uploading}></GuideLineBar>
-
- 
+      <GuideLineBar actionButtonText={isAgency ? "Verify" : "Post"} buttonDisable={uploading} onActionButtonClick={handlePostButton} />
     </div>
   );
 };

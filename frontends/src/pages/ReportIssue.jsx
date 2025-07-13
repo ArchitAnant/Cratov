@@ -1,16 +1,99 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import GuideLineBar from "../components/Action";
+import { useNavigate, useLocation } from "react-router-dom";
+import {GuideLineBar} from "../components/Action";
 import { useUpload } from "../context/UploadContext";
+import { useLogin } from "../context/LoginContext";
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+import 'leaflet/dist/leaflet.css';
+import ReportIssueForm from "../components/ReportIssueForm";
+
+
+function useCurrentLocation() {
+  const [location, setLocation] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setError("Geolocation not supported by your browser");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        });
+      },
+      (err) => {
+        setError("Permission denied or unavailable");
+        console.error(err);
+      }
+    );
+  }, []);
+
+  return { location, error };
+}
+
+// Custom marker icon
+const customIcon = new L.Icon({
+  iconUrl: iconUrl,
+  shadowUrl: shadowUrl,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+function LocationPicker({ initialPostion,onSelect }) {
+  const [position, setPosition] = useState(initialPostion || null);
+
+  useMapEvents({
+    click(e) {
+      setPosition(e.latlng);
+      onSelect(e.latlng);
+    },
+  });
+
+  return position ? (
+    <Marker position={position} draggable={true} icon={customIcon} />
+  ) : null;
+}
+
 
 
 const ReportIssue = () => {
-  const { images, setImages } = useUpload();
+  const navigate = useNavigate();
+  const locationState = useLocation();
+  const { userType } = useLogin();
+
+  // Check navigation state first, then fallback to LoginContext
+  // Also check if we came from agency-profile page
+  const referrer = document.referrer;
+  const cameFromAgencyProfile = referrer.includes('/agency-profile');
+
+  let currentUserType = locationState.state?.userType || userType;
+
+  // Override if we came from agency-profile
+  if (cameFromAgencyProfile && !locationState.state?.userType) {
+    currentUserType = "agency";
+  }
+
+  const isAgency = currentUserType === "agency";
+
+  const { images, setImages, location, setLocation, stringLandmark, setStringLandmark  } = useUpload();
   const [address, setAddress] = useState("");
   const [showAddressInput, setShowAddressInput] = useState(false);
-
-  const navigate = useNavigate();
+  const { location: coordinate, error } = useCurrentLocation();
+  // Only set location if coordinate is available and different from current
+  useEffect(() => {
+    if (coordinate && !location) {
+    setLocation(coordinate);
+  }
+  }, [coordinate]);
 
   const handleImageUpload = (index, event) => {
     const file = event.target.files[0];
@@ -26,92 +109,47 @@ const ReportIssue = () => {
       alert("Please add an address.");
       return;
     }
+    setStringLandmark(address);
     if (images.some((img) => img === null)) {
       alert("Please upload all 4 images.");
       return;
     }
-    navigate("/verify");
+    console.log("moving with coordinate", location);
+    navigate("/verify", { state: { userType: currentUserType } });
   };
 
   return (
-    <div className="font-poppins flex flex-col md:flex-row gap-8 pt-24 mb-10 min-h-screen bg-white">
-      {/* Left Section */}
-      <div className="flex-1 pl-[86px]">
-        <h2
-          className="text-[30px] font-medium mb-[60px]"
-          style={{ lineHeight: "100%", color: "#000000" }}
-        >
-          Report A Pothole
-        </h2>
-
-        {/* Address Section */}
-        <div className="mb-20">
-          {showAddressInput ? (
-            <input
-              type="text"
-              placeholder="Enter location or address"
-              className="border border-gray-300 rounded-full px-4 py-2 w-full focus:outline-none focus:ring focus:ring-gray-400"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
-          ) : (
-            <button
-              onClick={() => setShowAddressInput(true)}
-              className="flex items-center gap-2 text-[18px] text-black opacity-80"
-            >
-              <Plus size={18} />
-              Add Address
-            </button>
-          )}
-        </div>
-
-
-        <div className="mb-8">
-          <h4
-            className="text-[18px]  mb-4 mt-10"
-            style={{
-              lineHeight: "100%",
-              color: "#000000",
-            }}
-          >
-            Add Images
-          </h4>
-          <div className="flex gap-4 flex-wrap mt-8">
-            {images.map((img, index) => (
-              <label
-                key={index}
-                className={`w-[114px] h-[114px] flex items-center justify-center 
-                  rounded-[21px] bg-black cursor-pointer ${!img? "bg-opacity-10 ": "bg-opacity-100  border border-black"}`}
-                // style={{ opacity: img ? 1 : 0.1 }}
-              >
-                {img ? (
-                  <img
-                    src={URL.createObjectURL(img)}
-                    alt="preview"
-                    className="w-full h-full object-cover rounded-[21px]"
-                  />
-                ) : (
-                  <div className="opacity-100 text-black">
-                    <Plus size={32} />
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => handleImageUpload(index, e)}
-                />
-                
-              </label>
-            ))}
-          </div>
-        </div>
-      </div>
-      <GuideLineBar
-        onActionButtonClick={handleVerify}
-        actionButtonText="Verify"
+    <div className="font-poppins flex flex-col md:flex-row gap-8 mb-10 pt-10 min-h-screen bg-white">
+      <ReportIssueForm
+        isAgency={isAgency}
+        address={address}
+        setAddress={setAddress}
+        error={error}
+        location={location}
+        images={images}
+        handleImageUpload={handleImageUpload}
+        onLocationSelect={(loc) => {
+          console.log("Selected location:", loc);
+          setLocation({ lat: loc.lat, lon: loc.lng });
+        }}
       />
-      </div>
+      <GuideLineBar
+        onActionButtonClick={() => {
+              if (!address) {
+      alert("Please add an address.");
+      return;
+    }
+    setStringLandmark(address);
+    if (images.some((img) => img === null)) {
+      alert("Please upload all 4 images.");
+      return;
+    }
+    console.log("moving with coordinate", location);
+    navigate("/verify", { state: { userType: currentUserType } });
+        }}
+        actionButtonText={isAgency ? "Verify" : "Post"}
+      />
+    </div>
   );
 };
 

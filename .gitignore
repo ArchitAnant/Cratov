@@ -13,3 +13,7 @@ back_utils/uploads/
 node_modules/
 # Ignore lock files
 package-lock.json
+
+.DS_Store
+
+__pycache__/

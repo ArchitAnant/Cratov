@@ -2,7 +2,7 @@ import StatusCard from "../components/StatusCard";
 
 const Dashboard = () => {
   return (
-    <div className="min-h-screen bg-white px-8 py-10">
+    <div className="min-h-screen bg-white px-8 py-20 pt-28 overflow-y-auto">
       <div className="flex flex-col gap-6">
         <StatusCard
           username="ar1_archit_"

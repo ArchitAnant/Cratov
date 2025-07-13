@@ -6,3 +6,24 @@
 body {
   font-family: 'Poppins', sans-serif;
 }
+
+/* Leaflet base container */
+.leaflet-container {
+  z-index: 0 !important;
+}
+
+/* Leaflet tile layers */
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-overlay-pane,
+.leaflet-shadow-pane,
+.leaflet-marker-pane,
+.leaflet-tooltip-pane,
+.leaflet-popup-pane {
+  z-index: 0 !important;
+}
+
+/* Leaflet controls (e.g., zoom buttons) */
+.leaflet-control-container {
+  z-index: 0 !important;
+}
