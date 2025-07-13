@@ -58,15 +58,19 @@ const MainLogin = () => {
         <button onClick={async () => {
             const walletInfo = await connectWallet();
             if (walletInfo) {
+                setLoading(true);
                 setUserAddress(walletInfo.userAddress);
                 checkAlredyRegisted(walletInfo.userAddress, setUserType, setUserName, setUserUsername).then(async (isRegistered) => {
                     if (isRegistered) {
                         setLoginState(true);
+                        setLoading(false);
                     }
                     else {
                         setScreenCount(1);
+                        setLoading(false);
                     }
                 });
+                
             }}} className="absolute right-[150px] flex flex-row items-center justify-center gap-4 bg-black bg-opacity-[0.07] py-4 px-7 rounded-full">
             <img src="/MetaMaskLogo.svg" alt="Login" className="w-9 object-cover" />
             <h1 className="text-[14px] font-medium">Connect with Metamask</h1>

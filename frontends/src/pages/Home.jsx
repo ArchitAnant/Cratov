@@ -24,10 +24,8 @@ const Home = () => {
         const fetchedPosts = await getPostList();
 
         // Sort by uploaded_at (newest first)
-        const sortedPosts = fetchedPosts
-          .sort((a, b) => new Date(b.uploaded_at || b.timestamp || 0) - new Date(a.uploaded_at || a.timestamp || 0));
-
-        setPosts(sortedPosts);
+        console.log(fetchedPosts[0]);
+        setPosts(fetchedPosts);
 
       } catch (error) {
         setPosts([]);
@@ -87,7 +85,7 @@ const Home = () => {
           status={post.post_condition || "Awaiting Approval"}
           bidStatus=""
           voteCount={0}
-          price=""
+          price={post.amount}
           userType={userType}
           onExpand={() => {
             // Save post data for PostDetail page

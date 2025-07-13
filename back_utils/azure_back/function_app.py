@@ -696,7 +696,21 @@ def uploadPostMetadata(req: func.HttpRequest) -> func.HttpResponse:
         PCI = resp_json.get("pci")
         RQI = resp_json.get("rqi")
         BBD_deflection = resp_json.get("bbd")
-        max_bid = resp_json.get("maxBid")
+        max_bid = resp_json.get("maxBidAmount")
+#         {
+#   "postID": "post_vivek10_202507133758_1889",
+#   "lat": 22.577152,
+#   "lon": 88.39168,
+#   "roadDimensions": "900,300",
+#   "maintenanceHistory": "No maintenance history",
+#   "roadSurface": "Asphalt",
+#   "roadGeometry": "Straight but slightly tilted vertically",
+#   "safetyFeature": "Non",
+#   "pci": "78",
+#   "rqi": "0.6",
+#   "bbd": "0.6",
+#   "maxBidAmount": "500000"
+# }
 
         if not post_id or not lat or not lon or not length or not road_width or not maintenance_history or not road_surface or not road_geometry or not road_safety_features or not PCI or not RQI or not BBD_deflection:
             return func.HttpResponse(
@@ -710,6 +724,7 @@ def uploadPostMetadata(req: func.HttpRequest) -> func.HttpResponse:
                                maintenance_history, road_surface, 
                                road_geometry, road_safety_features,
                                PCI, RQI, BBD_deflection)
+        update_add_bid_ammount(post_id,max_bid)
 
         return func.HttpResponse(
             json.dumps({"message": "Post metadata uploaded successfully."}),

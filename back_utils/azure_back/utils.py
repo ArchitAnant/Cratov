@@ -201,6 +201,8 @@ def fetch_post(post_id):
             elif entity["RowKey"] == "static_metadata":
                 dict_str = entity.get("static_metadata", "{}")
                 resp["staic_metadata"] = json.loads(dict_str) if dict_str else {}
+            elif entity["RowKey"] == "bid_amount":
+                resp["amount"] = entity.get("bid_amount", 0)
 
         return resp
     except Exception as e:
@@ -245,6 +247,8 @@ def fetch_all_posts():
                 }
             elif rk == "static_metadata":
                 grouped[pk]["static_metadata"] = entity.get("static_metadata", {})
+            elif rk == "bid_amount":
+                grouped[pk]["amount"] = entity.get("bid_amount", 0)
         post_list = list(grouped.values())
         post_list.sort(
             key=lambda post: datetime.fromisoformat(post.get("uploaded_at").replace("Z", "+00:00")),
@@ -536,3 +540,33 @@ def generate_report(postid):
     # logging.log(logging.INFO, f"Generating report using OpenAIChat for post {postid}")
     md_report = openai.chat_completion(report_dict)
     return md_report
+
+def update_add_bid_ammount(postid,ammount):
+    """
+    Update the bid amount for a post in Azure Table Storage.
+    """
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service_client = TableServiceClient.from_connection_string(connection_string)
+    table_client = table_service_client.get_table_client("posts")
+
+    try:
+        # check for a seperate entrity with rowkwy as "bid_amount" and partition key as postid
+        entity = next(table_client.query_entities(f"PartitionKey eq '{postid}' and RowKey eq 'bid_amount'"), None)
+        if entity:
+            # Update existing bid amount
+            entity["bid_amount"] = ammount
+            table_client.update_entity(entity)
+        else:
+            # Create new bid amount entry
+            entity = {
+                "PartitionKey": postid,
+                "RowKey": "bid_amount",
+                "bid_amount": ammount
+            }
+            table_client.create_entity(entity)
+        logging.info(f"Bid amount for '{postid}' updated to {ammount}.")
+        return True
+       
+    except Exception as e:
+        logging.error(f"Failed to update bid amount for '{postid}': {e}")
+        return False

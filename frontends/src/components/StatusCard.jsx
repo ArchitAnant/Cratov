@@ -1,6 +1,8 @@
 import { Bookmark, CornerLeftUp } from "lucide-react";
 import { ActionButton } from "./Action";
 import BidStatus from "./BidStatus";
+import { formatIndianNumber } from "../helper";
+
 
 const StatusCard = ({
   username,
@@ -62,11 +64,12 @@ const StatusCard = ({
 
         {/* Show rupees when price exists (for both user and agency) */}
         {price && (
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#D9D9D9]/50 rounded-full flex items-center justify-center">
+          <div className="flex items-center gap-1">
+            <div className="animate-pulse w-6 h-6 bg-black/[0.07] rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-black rounded-full"></div>
             </div>
-            <p className="text-sm font-semibold">₹{price} Cr</p>
+            
+            <p className="text-sm font-medium">₹{formatIndianNumber(price)}</p>
           </div>
         )}
 

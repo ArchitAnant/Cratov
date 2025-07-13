@@ -4,6 +4,21 @@ import { BrowserProvider } from "ethers";
 const AZURE_FUNCTION_KEY = process.env.REACT_APP_AZURE_FUNCTION_KEY; // Replace with your actual Azure Function key
 
 
+function formatIndianNumber(inputStr) {
+  const num = parseFloat(inputStr);
+  if (isNaN(num)) return "Invalid number";
+
+  if (num >= 1e7) {
+    return (num / 1e7).toFixed(2) + " Cr";
+  } else if (num >= 1e5) {
+    return (num / 1e5).toFixed(2) + " Lakh";
+  } else if (num >= 1e3) {
+    return (num / 1e3).toFixed(2) + " Ths";
+  } else {
+    return num.toString();
+  }
+}
+
 async function compressAndConvertToBase64(file) {
   if (!file) throw new Error("No file provided");
 
@@ -470,4 +485,4 @@ async function getReport(postid) {
 
 export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,
   connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails,addRoadCondition,updatePostCondition,getPostList,fetchImageData,
-uploadApprovalData ,getReport};
+uploadApprovalData ,getReport,formatIndianNumber};

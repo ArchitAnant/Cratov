@@ -4,13 +4,13 @@ import { useLogin } from "../context/LoginContext";
 import { data, useLocation, useNavigate } from "react-router-dom";
 import { ActionButton, ImageGallery } from "../components/Action";
 import { Bookmark, CornerLeftUp } from "lucide-react";
-import { fetchImageData } from "../helper";
+import { fetchImageData,formatIndianNumber } from "../helper";
 import PostPageInfoCard from "../components/PostInfoCard";
 import MapSelector from "../components/MapSelector";
 import BidStatus from "../components/BidStatus";
 
 const PostDetail = () => {
-  const [post, setPost] = useState({ address: "", images: [],coordinates: { lat: 0.00, lon: 0.00} });
+  const [post, setPost] = useState({ address: "", images: [],coordinates: { lat: 0.00, lon: 0.00} ,amount:null});
   const [loading,setLoading] = useState(true)
   const locationState = useLocation();
   const navigate = useNavigate();
@@ -32,6 +32,7 @@ const PostDetail = () => {
   const isAgency = currentUserType === "agency";
 
   useEffect(() => {
+    
     setLoading(true)
 
     
@@ -39,9 +40,9 @@ const PostDetail = () => {
     if (locationState.state?.post) {
      fetchImageData(locationState.state.post.postID).then((imagesObj) => {
       const imagesArray = Object.values(imagesObj); 
-      setPost({ ...locationState.state.post, images: imagesArray,coordinates: locationState.state.post.coordinates || { lat: 0.00, lon: 0.00 } });
+      setPost({ ...locationState.state.post, images: imagesArray, coordinates: locationState.state.post.coordinates || { lat: 0.00, lon: 0.00 } ,amount: locationState.state.post.amount});
       setLoading(false);
-      
+      console.log("Post data set from navigation state:", locationState.state.post);
     });
     } else {
       // Fallback to saved post data
@@ -103,7 +104,7 @@ const PostDetail = () => {
 
           {/* Conditional Buttons based on user type - Using standardized components */}
           <div className="flex items-center gap-4">
-            {!isAgency && (
+            {!isAgency && !post.amount && (
               // Upvote section for regular users only
               <div className="flex items-center gap-4">
                 <button
@@ -141,6 +142,16 @@ const PostDetail = () => {
                   />
                 </button>
                 <p className="text-[16px] font-medium">56</p>
+              </div>
+            )}
+            {post.amount&&(
+              <div className="flex items-center gap-2">
+                <div className="animate-pulse w-10 h-10 bg-black/[0.07] rounded-full flex items-center justify-center">
+                  <div className="w-3 h-3 bg-black rounded-full"></div>
+                </div>
+                
+                <p className="text-[20px] font-medium">₹{formatIndianNumber(post.amount)}</p>
+                <p className="ps-2 text-[18px] font-regular text-black/[0.5]">Awaiting Bidder</p>
               </div>
             )}
           </div>

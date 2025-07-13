@@ -33,15 +33,16 @@ const ReportMarkdown = () => {
   }, [postid]);
 
   return (
-    <div className="min-h-screen px-6 py-8 max-w-4xl mx-auto font-sans">
+    <div className="min-h-screen px-6 py-8 max-w-4xl mx-auto ">
       <button onClick={
         () => window.history.back()
       } className="absolute left-20 top-20 "><ArrowLeft></ArrowLeft></button>
       <h1 className="text-2xl font-bold mb-6">Road Report Preview</h1>
       {loading ? (
-        <div className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
-        </div>
+        <div className="flex flex-col items-center justify-center h-64">
+       <h1 className="text-[36px] font-regular bg-gradient-to-r from-black/[0.9] via-black/[0.5] to-black/[0.6] bg-clip-text text-transparent  bg-[length:200%_200%] animate-gradient-x">Loading Report</h1>
+       <h1 className="text-[15px] text-black/[0.4] font-regular pt-2 ">Wait while we fetch details and generate a summary report for you!</h1>
+          </div>
       ) : (
         <div
           className="prose prose-sm sm:prose lg:prose-lg max-w-none bg-white p-6 rounded-xl shadow-md"
