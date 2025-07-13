@@ -24,7 +24,6 @@ const Home = () => {
         const fetchedPosts = await getPostList();
 
         // Sort by uploaded_at (newest first)
-        console.log(fetchedPosts[0]);
         setPosts(fetchedPosts);
 
       } catch (error) {

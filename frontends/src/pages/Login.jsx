@@ -11,6 +11,7 @@ const MainLogin = () => {
     const [screenCount , setScreenCount] = useState(0);
     const { userAddress, setUserAddress, userType, setUserType, userName,setUserName,userUsername, setUserUsername,loginSuccesful,setLoginState} = useLogin();
     const [loading, setLoading] = useState(false);
+    const [connecting, setConnecting] = useState(false);
   
     const handleRegister = () => {
         registerNewUser(userAddress, userName, userType, userUsername).then((res) => {
@@ -55,26 +56,30 @@ const MainLogin = () => {
             
         </div>
 
-        <button onClick={async () => {
+        <button disabled={connecting} onClick={async () => {
             const walletInfo = await connectWallet();
             if (walletInfo) {
-                setLoading(true);
+                setConnecting(true);
                 setUserAddress(walletInfo.userAddress);
                 checkAlredyRegisted(walletInfo.userAddress, setUserType, setUserName, setUserUsername).then(async (isRegistered) => {
                     if (isRegistered) {
                         setLoginState(true);
-                        setLoading(false);
+                        setConnecting(false);
                     }
                     else {
                         setScreenCount(1);
-                        setLoading(false);
+                        setConnecting(false);
                     }
                 });
                 
-            }}} className="absolute right-[150px] flex flex-row items-center justify-center gap-4 bg-black bg-opacity-[0.07] py-4 px-7 rounded-full">
+            }}} className="absolute right-[150px] flex flex-row items-center justify-center gap-4 bg-black bg-opacity-[0.07] py-4 px-7 rounded-full" style={connecting ? {pointerEvents: "none", opacity: 0.5} : {}}>
+                
             <img src="/MetaMaskLogo.svg" alt="Login" className="w-9 object-cover" />
             <h1 className="text-[14px] font-medium">Connect with Metamask</h1>
         </button>
+        {connecting && (
+    <div className="absolute right-[120px] h-6 w-6 border-2 border-t-transparent border-black rounded-full animate-spin"></div>
+  )}
 
         </>}
         {screenCount===1 && <SelectUserType setUserType={setUserType} setScreenCount={setScreenCount}/>}
