@@ -40,6 +40,7 @@ def get_road_traffic_analysis(lat, lon):
             res = requests.get(base_url, params=params).json()
             direction = res.get('directions', [])[0]
             duration = direction['duration']
+            distance = direction['distance']
             results[dt.strftime('%H:%M')] = duration
         except Exception as e:
             print(f"{dt.strftime('%H:%M')} => Failed: {e}")
@@ -52,8 +53,8 @@ def get_road_traffic_analysis(lat, lon):
     if averages:
         max_time = max(averages.items(), key=lambda x: x[1])
         min_time = min(averages.items(), key=lambda x: x[1])
-        return {"max": f"{max_time[0]} => {max_time[1]} min", "min": f"{min_time[0]} => {min_time[1]} min"}
-    return {"max": None, "min": None}
+        return {"max_comute_time": f"{max_time[0]} => {max_time[1]} min", "min_compute_time": f"{min_time[0]} => {min_time[1]} min","distance_in_meters": distance}
+    return {"max_comute_time": None, "min_compute_time": None, "distance_in_meters": None}
 
 def parse_weather_forcast(lat,lon):
     url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&cnt=4&units=metric"

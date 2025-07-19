@@ -799,4 +799,52 @@ def generateReport(req: func.HttpRequest) -> func.HttpResponse:
             mimetype="application/json",
             headers={"Access-Control-Allow-Origin": "*"}
         )
+    
+# delete a post with postid
+@app.route(route="deletePost", auth_level=func.AuthLevel.FUNCTION)
+def deletePost(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Trigger function triggered to delete post.')
+    try:
+        if req.method == "OPTIONS":
+            return func.HttpResponse(
+                "",
+                status_code=204,
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "DELETE, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                },
+            )
+        
+        postid = req.params.get("postid")
+        if not postid:
+            return func.HttpResponse(
+                json.dumps({"error": "Invalid request. postid field is required."}),
+                status_code=400,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        
+        if delete_post(postid):
+            return func.HttpResponse(
+                json.dumps({"message": "Post deleted successfully."}),
+                status_code=200,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+        else:
+            return func.HttpResponse(
+                json.dumps({"error": "Failed to delete post."}),
+                status_code=500,
+                mimetype="application/json",
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+    
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({"error": f"Internal Server Error: {str(e)}"}),
+            status_code=500,
+            mimetype="application/json",
+            headers={"Access-Control-Allow-Origin": "*"}
+        )
 

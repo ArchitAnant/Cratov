@@ -570,3 +570,23 @@ def update_add_bid_ammount(postid,ammount):
     except Exception as e:
         logging.error(f"Failed to update bid amount for '{postid}': {e}")
         return False
+    
+def delete_post(postid):
+    """
+    Delete a post and its associated images from Azure Table Storage.
+    """
+    connection_string = os.getenv("STORAGE_CONNECTION_STRING")
+    table_service_client = TableServiceClient.from_connection_string(connection_string)
+    table_client = table_service_client.get_table_client("posts")
+
+    try:
+        # Delete all entities with the given PartitionKey
+        entities = table_client.query_entities(f"PartitionKey eq '{postid}'")
+        for entity in entities:
+            table_client.delete_entity(partition_key=entity["PartitionKey"], row_key=entity["RowKey"])
+        logging.info(f"Post '{postid}' and  deleted successfully.")
+        #image need to deleted also
+        return True
+    except Exception as e:
+        logging.error(f"Failed to delete post '{postid}': {e}")
+        return False

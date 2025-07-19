@@ -94,6 +94,25 @@ async function uploadPostToBackend(payload) {
   }
 }
 
+async function deletePost(postID) {
+  const url = `http://localhost:7071/api/deletePost?postid=${postID}`;
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    throw error;
+  }
+}
+
 // async function to predcit potholes using endpoint https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/predictpothole?postid=POSTID&code=AZURE_FUNCTION_KEY
 async function predictPotholes(postID) {
   const azureUrl = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/predictpothole?postid=${postID}&code=${AZURE_FUNCTION_KEY}`;
@@ -485,4 +504,4 @@ async function getReport(postid) {
 
 export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,
   connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails,addRoadCondition,updatePostCondition,getPostList,fetchImageData,
-uploadApprovalData ,getReport,formatIndianNumber};
+uploadApprovalData ,getReport,formatIndianNumber,deletePost};
