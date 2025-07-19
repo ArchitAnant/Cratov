@@ -95,7 +95,7 @@ async function uploadPostToBackend(payload) {
 }
 
 async function deletePost(postID) {
-  const url = `http://localhost:7071/api/deletePost?postid=${postID}`;
+  const url = `https://waddle-dxhvhfaqahepfra6.centralindia-01.azurewebsites.net/api/deletepost?postid=${postID}&code=${AZURE_FUNCTION_KEY}`;
   try {
     const response = await fetch(url, {
       method: 'POST',
