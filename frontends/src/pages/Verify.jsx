@@ -75,6 +75,9 @@ const Verify = () => {
       } else {
         deletePost(post_id); // Delete the post if rejected
         setUploading(true);
+        upload.setImages([null,null,null,null]);
+        upload.setStringLandmark("");
+        upload.setLocation(null);
         setBarColor("bg-[#9D0202]");
         setStatus("Rejected");
       }
