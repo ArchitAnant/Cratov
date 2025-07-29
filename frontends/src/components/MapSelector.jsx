@@ -5,6 +5,7 @@ import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/leaflet.css';
 
+
 const customIcon = new L.Icon({
   iconUrl: iconUrl,
   shadowUrl: shadowUrl,
