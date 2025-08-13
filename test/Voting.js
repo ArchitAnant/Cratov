@@ -9,7 +9,7 @@ describe("Voting Contract", function () {
     voting = await Voting.deploy(); // No need for .deployed()
   });
 
-  it("should allow a user to upvote a post", async () => {
+  it("A user to upvote post", async () => {
     await expect(voting.voteOrAddPost("post1", "user1"))
       .to.emit(voting, "PostUpvoted")
       .withArgs("post1", "user1");
@@ -25,11 +25,12 @@ describe("Voting Contract", function () {
   });
 
   it("should allow another user to upvote same post", async () => {
-    await voting.voteOrAddPost("post1", "user1");
     await voting.voteOrAddPost("post1", "user2");
+    await voting.voteOrAddPost("post1", "user3");
 
     const voters = await voting.getVoters("post1");
-    expect(voters).to.have.members(["user1", "user2"]);
+    const voterList = voters.map(v => v.toString());
+    expect(voterList).to.have.members(["user2", "user3"]);
   });
 
   it("should allow a user to unvote", async () => {
