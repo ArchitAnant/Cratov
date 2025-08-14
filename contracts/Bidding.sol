@@ -92,7 +92,7 @@ contract Bidding {
 
     function downbidPost(
         string calldata post_id,
-        uint amount,
+        uint newAmount,
         uint downpaymentAmount,
         string calldata bidder_id,
         address bidder_address
@@ -107,24 +107,42 @@ contract Bidding {
         require(block.timestamp < p.end_date, "Bidding has ended");
 
         // Ensure new bid is lower
-        require(amount < p.amount, "New amount must be less than current amount");
+        require(newAmount < p.amount, "New amount must be less than current amount");
 
-        // Ensure correct downpayment sent
-        require(msg.value == downpaymentAmount, "Incorrect downpayment sent");
+        // Downpayment must be exactly 2% of newAmount (proposed amount)
+        uint expectedDownpayment = (newAmount * 2) / 100;
 
-        // 2% rule check
-        uint expectedDownpayment = (p.amount * 2) / 100;
-        require(downpaymentAmount == expectedDownpayment, "Downpayment must be 2% of current amount");
+        require(
+            downpaymentAmount == expectedDownpayment,
+            "DownpaymentAmount param incorrect ."
+        );
+        require(msg.value == expectedDownpayment, "Incorrect downpayment sent");
 
-        // Refund 2% to the current bidder
-        (bool sent, ) = p.current_bidder_address.call{value: expectedDownpayment}("");
-        require(sent, "Refund to current bidder failed");
+        // Store old bidder info and amount before overwriting
+        address oldBidder = p.current_bidder_address;
+        uint oldAmount = p.amount;
 
-        // Update bidding info
-        p.amount = amount;
+        // --- EFFECTS ---
+        p.amount = newAmount;
         p.current_bidder_id = bidder_id;
         p.current_bidder_address = bidder_address;
+
+        // --- INTERACTIONS ---
+        // Refund 2% of old amount to previous bidder if they are not the agency
+        if (oldBidder != p.agency_address) {
+            uint refundToOldBidder = (oldAmount * 2) / 100;
+            (bool sentOld, ) = oldBidder.call{value: refundToOldBidder}("");
+            require(sentOld, "Refund to previous bidder failed");
+        }
+
+        // Refund the difference between old and new amount to agency
+        uint diffToAgency = oldAmount - newAmount;
+        (bool sentAgency, ) = p.agency_address.call{value: diffToAgency}("");
+        require(sentAgency, "Refund to agency failed");
     }
+
+
+    
 
 
     // View details of a bidding post
