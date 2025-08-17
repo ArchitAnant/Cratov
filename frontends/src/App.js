@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useLogin, LoginManager } from "./context/LoginContext"; // LoginManager ko import karein
 
 // Page imports
 import Home from "./pages/Home";
@@ -7,52 +8,72 @@ import Verify from "./pages/Verify";
 import PostDetail from "./pages/PostDetail";
 import BiddingDetail from "./pages/BiddingDetail";
 import ProjectProgress from "./pages/ProjectProgress";
-// import FundedDetail from "./pages/Funded"; // Commented out - will use later if needed
 import ConstructionRating from "./pages/ConstructionRating";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-import TopBar from "./components/TopBar";
-// import AgencyProfile from "./pages/Agency-profile";
 import AgencyApproval from "./pages/AgencyApproval";
-import Footer from "./components/Footer";
 import MainLogin from "./pages/Login";
 import ReportMarkdown from "./pages/Report";
-import { useLogin } from "./context/LoginContext";
 
+// Component imports
+import TopBar from "./components/TopBar";
+import Footer from "./components/Footer";
+
+// Wrapper component to provide context to the entire app
 function App() {
-  const {loginSuccesful } = useLogin();
-
   return (
-    <div className="App">
-      {loginSuccesful  ? <MainBrowser /> : <MainLogin />}
-    </div>
+    <LoginManager>
+      <AppContent />
+    </LoginManager>
   );
 }
 
+// This component now has access to the LoginContext
+const AppContent = () => {
+  const { loginSuccesful } = useLogin();
+
+  return (
+    <div className="App">
+      <BrowserRouter>
+        {loginSuccesful ? <MainBrowser /> : <MainLogin />}
+      </BrowserRouter>
+    </div>
+  );
+};
+
+// Main application routes after login
 const MainBrowser = () => {
   return (
-    <BrowserRouter>
+    <>
       <TopBar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/login" element={<MainLogin />} />
         <Route path="/reportissue" element={<ReportIssue />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/postdetail" element={<PostDetail />} />
-        <Route path="/bidding" element={<BiddingDetail />} />
+        
+        {/* Yahan par BiddingPageRoute ka istemal kiya gaya hai */}
+        <Route path="/bidding" element={<BiddingPageRoute />} />
+        
         <Route path="/progress/:id" element={<ProjectProgress />} />
-        {/* <Route path="/funded" element={<FundedDetail />} /> */} {/* Commented out - will use later if needed */}
         <Route path="/rate-construction" element={<ConstructionRating />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
-        {/* <Route path="/agency-profile" element={<AgencyProfile />} /> */}
         <Route path="/showReport" element={<ReportMarkdown />} />
         <Route path="/agency-approval" element={<AgencyApproval />} />
       </Routes>
       <Footer />
-    </BrowserRouter>
+    </>
   );
+};
+
+// Helper component to pass the userRole prop to BiddingDetail
+const BiddingPageRoute = () => {
+  const { userType } = useLogin(); // Context se userType nikalein
+  
+  // userType ko userRole prop mein pass karein
+  return <BiddingDetail userRole={userType} />;
 };
 
 export default App;
