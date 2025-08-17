@@ -1,11 +1,12 @@
 import { Bookmark } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; 
 import { useState, useEffect } from "react";
 import { getPostData } from "../context/post";
 
 const BiddingDetail = ({ userRole }) => {
   const [post, setPost] = useState({ address: "", images: [] });
   const locationState = useLocation();
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     if (locationState.state?.post) {
@@ -25,6 +26,11 @@ const BiddingDetail = ({ userRole }) => {
   }
 
   const isContractor = userRole === 'contractor';
+
+  
+  const handleDownbidClick = () => {
+    navigate('/down-bid'); 
+  };
 
   return (
     <div className="min-h-screen bg-white pt-24 pb-10 px-[86px] font-poppins">
@@ -108,8 +114,12 @@ const BiddingDetail = ({ userRole }) => {
           
           {/* "Downbid" button - Centered and smaller */}
           {isContractor && (
-            <div className="mt-8 flex justify-left items-center">
-              <button className="bg-black text-white py-2 px-8 rounded-full hover:bg-gray-800 transition-colors text-xs font-semibold">
+            <div className="mt-8 flex justify-left  items-center">
+              {/* 4. onClick handler ko button mein add karein */}
+              <button 
+                onClick={handleDownbidClick}
+                className="bg-black text-white py-2 px-8 rounded-full hover:bg-gray-800 transition-colors text-xs font-semibold"
+              >
                 Downbid
               </button>
             </div>
