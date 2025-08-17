@@ -10,7 +10,7 @@ const DownBidPage = () => {
     setBidAmount(amount);
 
     if (amount && !isNaN(amount)) {
-      const payment = parseFloat(amount) * 0.02;
+      const payment = parseFloat(amount) * 0.01;
       setDownPayment(payment.toFixed(2));
     } else {
       setDownPayment(0);
@@ -53,7 +53,7 @@ const DownBidPage = () => {
           {/* Down Payment Info */}
           <div className="mb-8">
             <p className="text-sm text-gray-600 leading-relaxed">
-              In order to make a down bid a down payment is needed, which will be 2% of your down bid amount. <br />
+              In order to make a down bid a down payment is needed, which will be 1% of your down bid amount. <br />
               If you are out-bidden, your down payment will be refunded.
             </p>
           </div>
@@ -94,8 +94,8 @@ const DownBidPage = () => {
             </ul>
           </div>
 
-          {/* Submit Button */}
-          <div className="pt-4 mt-8 flex justify-left items-center">
+          {/* Submit Button is now pushed to the bottom */}
+          <div className="pt-8 flex justify-left items-center gap-6">
             <button 
               disabled={isButtonDisabled}
               className="w-32 bg-black text-white py-2 rounded-full flex items-center justify-center gap-2 text-xs font-semibold hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
