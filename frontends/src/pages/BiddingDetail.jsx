@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Bookmark, Star } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getPostData } from "../context/post";
+import { ActionButton } from "../components/Action"; // ActionButton import karein
 
 const BiddingDetail = ({ userRole }) => {
   if (!userRole) {
@@ -21,9 +22,7 @@ const BiddingDetail = ({ userRole }) => {
   }
 };
 
-//================================================================
-// 1. AGENCY VIEW (Dynamic with stages)
-//================================================================
+
 const AgencyBiddingView = () => {
   const [post, setPost] = useState({ address: "", images: [] });
   const [currentStage, setCurrentStage] = useState(1);
@@ -103,7 +102,6 @@ const AgencyBiddingView = () => {
           </div>
         </div>
 
-        {/* ========= Right Sidebar ========= */}
         <div className="w-full md:w-[30%] flex flex-col gap-6">
             <div className="flex items-center gap-2">
               <Bookmark className="text-black" />
@@ -130,9 +128,7 @@ const AgencyBiddingView = () => {
   );
 };
 
-//================================================================
-// 2. CONTRACTOR VIEW (Static with Downbid button)
-//================================================================
+
 const ContractorBiddingView = ({ userRole }) => {
   const [post, setPost] = useState({ address: "", images: [] });
   const locationState = useLocation();
@@ -207,10 +203,13 @@ const ContractorBiddingView = ({ userRole }) => {
             </div>
           </div>
           {isContractor && (
-            <div className="mt-8 flex justify-center">
-              <button onClick={handleDownbidClick} className="bg-black text-white py-2 px-8 rounded-full hover:bg-gray-800 transition-colors text-xs font-semibold">
-                Downbid
-              </button>
+            <div className="mt-8 flex justify-left items-center">
+              {/* Purana button hata kar ActionButton use kiya gaya hai */}
+              <ActionButton
+                action="Downbid"
+                onClick={handleDownbidClick}
+                ifDisable={false}
+              />
             </div>
           )}
         </div>
