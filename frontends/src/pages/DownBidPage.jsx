@@ -1,9 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { getPostData } from '../context/post'; 
 
 const DownBidPage = () => {
   const [bidAmount, setBidAmount] = useState('');
   const [downPayment, setDownPayment] = useState(0);
+  const [post, setPost] = useState({}); 
+
+  
+  useEffect(() => {
+    const postData = getPostData();
+    if (postData) {
+      setPost(postData);
+    }
+  }, []);
 
   const handleBidChange = (e) => {
     const amount = e.target.value;
@@ -32,7 +42,7 @@ const DownBidPage = () => {
             <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center">
               <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
             </div>
-            <p className="font-semibold text-lg">₹1.50 Cr</p>
+            <p className="font-semibold text-lg">₹{post.price || '1.50 Cr'}</p>
             <span className="text-sm text-gray-500">Awaiting Bidder</span>
           </div>
 
@@ -50,7 +60,7 @@ const DownBidPage = () => {
             />
           </div>
           
-          {/* Down Payment Info */}
+        
           <div className="mb-8">
             <p className="text-sm text-gray-600 leading-relaxed">
               In order to make a down bid a down payment is needed, which will be 1% of your down bid amount. <br />
@@ -58,7 +68,7 @@ const DownBidPage = () => {
             </p>
           </div>
 
-          {/* Calculated Amount */}
+         
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">Calculated down payment amount :</h3>
             <div className="w-full md:w-2/3 bg-gray-100 border border-gray-200 rounded-lg py-3 px-4 text-sm text-gray-500">
@@ -67,44 +77,46 @@ const DownBidPage = () => {
           </div>
         </div>
 
-        {/* ========= Right Sidebar ========= */}
-        <div className="w-full md:w-80 space-y-6 text-sm">
-          <h4 className="text-base font-semibold">About the post :</h4>
-          
-          <div>
-            <p className="text-gray-500">Last Bidding Date :</p>
-            <p className="font-medium mt-1">3rd July 2025</p>
-          </div>
-          
-          <div>
-            <p className="text-gray-500">Pre-Repair Report :</p>
-            <button
-              onClick={() => alert("Download started")}
-              className="text-blue-600 underline hover:text-blue-800 mt-1"
-            >
-              Download Pre-Repair Report
-            </button>
-          </div>
-          
-          <div>
-            <p className="text-gray-500">Current Status :</p>
-            <ul className="list-disc ml-5 mt-1 space-y-1">
-              <li className="text-green-500">Approved</li>
-              <li className="text-red-500">On Bid</li>
-            </ul>
-          </div>
+        <div className="w-full md:w-80 flex flex-col">
+            <div className="flex-grow space-y-6 text-sm">
+                <h4 className="text-base font-semibold">About the post :</h4>
+                
+                <div>
+                    <p className="text-gray-500">Last Bidding Date :</p>
+                    
+                    <p className="font-medium mt-1">3rd July 2025</p>
+                </div>
+                
+                <div>
+                    <p className="text-gray-500">Pre-Repair Report :</p>
+                    <button
+                    onClick={() => alert("Download started")}
+                    className="text-blue-600 underline hover:text-blue-800 mt-1"
+                    >
+                    Download Pre-Repair Report
+                    </button>
+                </div>
+                
+                <div>
+                    <p className="text-gray-500">Current Status :</p>
+                    <ul className="list-disc ml-5 mt-1 space-y-1">
+                        <li className="text-green-500">Approved</li>
+                        <li className="text-red-500">{post.status || 'On Bid'}</li>
+                    </ul>
+                </div>
+            </div>
 
-          {/* Submit Button is now pushed to the bottom */}
-          <div className="pt-8 flex justify-left items-center gap-6">
-            <button 
-              disabled={isButtonDisabled}
-              className="w-32 bg-black text-white py-2 rounded-full flex items-center justify-center gap-2 text-xs font-semibold hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              <span>Downbid</span>
-              <ArrowRight size={14} />
-            </button>
-          </div>
+            <div className="pt-8 flex justify-center">
+                <button 
+                disabled={isButtonDisabled}
+                className="w-32 bg-black text-white py-2 rounded-full flex items-center justify-center gap-2 text-xs font-semibold hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                <span>Downbid</span>
+                <ArrowRight size={14} />
+                </button>
+            </div>
         </div>
+
       </div>
     </div>
   );
