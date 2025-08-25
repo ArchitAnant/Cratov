@@ -500,8 +500,68 @@ async function getReport(postid) {
   
 }
 
+async function upvotePost(votingContractAddress, votingContractABI, signer, postId, userId) {
+  try {
+    
+    const votingContract = new Contract(votingContractAddress, votingContractABI, signer);
+
+    
+    console.log(`Submitting upvote for post "${postId}" from user "${userId}"...`);
+    const tx = await votingContract.voteOrAddPost(postId, userId);
+
+    
+    await tx.wait();
+
+    console.log("Upvote transaction successful!", tx.hash);
+    return true;
+  } catch (error) {
+    console.error("Error upvoting post:", error);
+    if (error.message.includes("User has already voted")) {
+      alert("You have already upvoted this post.");
+    }
+    throw error;
+  }
+}
+
+
+async function downvotePost(votingContractAddress, votingContractABI, signer, postId, userId) {
+  try {
+    
+    const votingContract = new Contract(votingContractAddress, votingContractABI, signer);
+
+   
+    
+    const tx = await votingContract.unvoteUser(postId, userId);
+
+    // 3. Wait for the transaction to be mined
+    await tx.wait();
+
+    
+    return true;
+  } catch (error) {
+    console.error("Error downvoting post:", error);
+    throw error;
+  }
+}
+
+
+async function getVoteCount(votingContractAddress, votingContractABI, provider, postId) {
+  try {
+    
+    const votingContract = new Contract(votingContractAddress, votingContractABI, provider);
+
+    
+    const voters = await votingContract.getVoters(postId);
+
+    
+    return voters.length;
+  } catch (error) {
+    console.error("Error fetching vote count:", error);
+    return 0;
+  }
+}
 
 
 export { createImageUploadPayload, uploadPostToBackend, predictPotholes,checkAcceptance,
   connectWallet,checkAlredyRegisted,registerNewUser,getUserDetails,addRoadCondition,updatePostCondition,getPostList,fetchImageData,
-uploadApprovalData ,getReport,formatIndianNumber,deletePost};
+uploadApprovalData ,getReport,formatIndianNumber,deletePost,getVoteCount,downvotePost,upvotePost};
