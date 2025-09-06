@@ -56,13 +56,12 @@ contract Voting {
     }
 
     function removePost(string calldata postid) external {
+        // the function will be only called by the owner of the post or the admin
+
         bytes32 hashed = _key(postid);
         require(exists[hashed], "Post does not exist");
-        for (uint i = 0; i < data[hashed].length; i++) {
-            delete voted[hashed][_key(data[hashed][i])];
-        }
-        delete data[hashed];
-        delete exists[hashed];
+        exists[hashed] = false;
+        delete data[hashed]; // optional, but doesn’t clear voted[] to save gas
         emit RemovePost(postid);
     }
 

@@ -1,5 +1,5 @@
 import imageCompression from 'browser-image-compression';
-import { BrowserProvider } from "ethers";
+import { BrowserProvider,Contract } from "ethers";
 
 const AZURE_FUNCTION_KEY = process.env.REACT_APP_AZURE_FUNCTION_KEY; // Replace with your actual Azure Function key
 

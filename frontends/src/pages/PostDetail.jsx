@@ -4,7 +4,7 @@ import { useLogin } from "../context/LoginContext";
 import { data, useLocation, useNavigate } from "react-router-dom";
 import { ActionButton, ImageGallery } from "../components/Action";
 import { Bookmark, CornerLeftUp } from "lucide-react";
-import { fetchImageData,formatIndianNumber } from "../helper";
+import { fetchImageData,formatIndianNumber,upvotePost,downvotePost } from "../helper";
 import PostPageInfoCard from "../components/PostInfoCard";
 import MapSelector from "../components/MapSelector";
 import BidStatus from "../components/BidStatus";
@@ -120,13 +120,16 @@ const PostDetail = () => {
                       post_id: post.post_id || post.postID
                     };
 
-                    // Navigate to BiddingDetail page
-                    navigate("/bidding", {
-                      state: {
-                        userType: currentUserType,
-                        post: biddingData
-                      }
-                    });
+                    /*
+                    
+                    Upvote logic
+
+                    - check is this post was already upvoted by this user
+                    - if yes, then remove the upvote
+                    - if no, then upvote the post 
+
+                    */
+
                   }}
                   className="flex items-center justify-center gap-2
                     w-[146px] h-[56px] rounded-[49px]
